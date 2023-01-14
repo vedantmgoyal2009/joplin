@@ -72,20 +72,30 @@ async function main() {
 			src: langSourceDir,
 			dest: `${buildLibDir}/tinymce/langs`,
 		},
+		{
+			src: resolve(__dirname, '../../pdf-viewer/dist'),
+			dest: `${buildLibDir}/@joplin/pdf-viewer`,
+		},
 	];
 
 	const files = [
 		'@fortawesome/fontawesome-free/css/all.min.css',
-		'react-datetime/css/react-datetime.css',
-		'smalltalk/css/smalltalk.css',
-		'roboto-fontface/css/roboto/roboto-fontface.css',
-		'codemirror/lib/codemirror.css',
-		'codemirror/addon/dialog/dialog.css',
 		'@joeattardi/emoji-button/dist/index.js',
+		'codemirror/addon/dialog/dialog.css',
+		'codemirror/lib/codemirror.css',
 		'mark.js/dist/mark.min.js',
+		'react-datetime/css/react-datetime.css',
+		'roboto-fontface/css/roboto/roboto-fontface.css',
+		'smalltalk/css/smalltalk.css',
+		'smalltalk/img/IDR_CLOSE_DIALOG_H.png',
+		'smalltalk/img/IDR_CLOSE_DIALOG.png',
 		{
 			src: resolve(__dirname, '../../lib/services/plugins/sandboxProxy.js'),
 			dest: `${buildLibDir}/@joplin/lib/services/plugins/sandboxProxy.js`,
+		},
+		{
+			src: resolve(__dirname, '../../pdf-viewer/index.html'),
+			dest: `${buildLibDir}/@joplin/pdf-viewer/index.html`,
 		},
 	];
 

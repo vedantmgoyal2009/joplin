@@ -1,14 +1,14 @@
 /* @typescript-eslint/prefer-const */
 
-import time from '@joplin/lib/time';
-import { setupDatabaseAndSynchronizer, supportDir, db, createNTestNotes, switchClient } from '@joplin/lib/testing//test-utils';
-import SearchEngine from '@joplin/lib/services/searchengine/SearchEngine';
-import Note from '@joplin/lib/models/Note';
-import Folder from '@joplin/lib/models/Folder';
-import Tag from '@joplin/lib/models/Tag';
-import shim from '@joplin/lib/shim';
-import ResourceService from '@joplin/lib/services/ResourceService';
-import { NoteEntity } from '@joplin/lib/services/database/types';
+import time from '../../time';
+import { setupDatabaseAndSynchronizer, supportDir, db, createNTestNotes, switchClient } from '../../testing//test-utils';
+import SearchEngine from '../../services/searchengine/SearchEngine';
+import Note from '../../models/Note';
+import Folder from '../../models/Folder';
+import Tag from '../../models/Tag';
+import shim from '../../shim';
+import ResourceService from '../../services/ResourceService';
+import { NoteEntity } from '../../services/database/types';
 
 
 let engine: any = null;
@@ -16,14 +16,12 @@ let engine: any = null;
 const ids = (array: NoteEntity[]) => array.map(a => a.id);
 
 describe('services_SearchFilter', function() {
-	beforeEach(async (done) => {
+	beforeEach(async () => {
 		await setupDatabaseAndSynchronizer(1);
 		await switchClient(1);
 
 		engine = new SearchEngine();
 		engine.setDb(db());
-
-		done();
 	});
 
 	// Outside of for loop because this does not apply to to SEARCH_TYPE_NONLATIN_SCRIPT
@@ -606,7 +604,7 @@ describe('services_SearchFilter', function() {
 				const n11 = await Note.save({ title: 'I also made this', body: 'today', updated_time: today, user_updated_time: today }, { autoTimestamp: false });
 
 				const n2 = await Note.save({ title: 'I made this', body: 'yesterday', updated_time: yesterday, user_updated_time: yesterday }, { autoTimestamp: false });
-				const n3 = await Note.save({ title: 'I made this', body: 'day before yesterday', updated_time: dayBeforeYesterday ,user_updated_time: dayBeforeYesterday }, { autoTimestamp: false });
+				const n3 = await Note.save({ title: 'I made this', body: 'day before yesterday', updated_time: dayBeforeYesterday, user_updated_time: dayBeforeYesterday }, { autoTimestamp: false });
 
 				await engine.syncTables();
 

@@ -1,7 +1,7 @@
 {
 	"manifest_version": 1,
 	"id": "<%= pluginId %>",
-	"app_min_version": "2.8",
+	"app_min_version": "2.10",
 	"version": "1.0.0",
 	"name": "<%= pluginName %>",
 	"description": "<%= pluginDescription %>",
@@ -9,5 +9,6 @@
 	"homepage_url": "<%= pluginHomepageUrl %>",
 	"repository_url": "<%= pluginRepositoryUrl %>",
 	"keywords": [],
-	"categories": []
+	"categories": [],
+	"screenshots": []
 }

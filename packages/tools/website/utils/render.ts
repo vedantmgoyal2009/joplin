@@ -1,12 +1,12 @@
 import * as Mustache from 'mustache';
 import { filename } from '@joplin/lib/path-utils';
 import * as fs from 'fs-extra';
-import { TemplateParams } from './types';
+import { Partials, TemplateParams } from './types';
 import { headerAnchor } from '@joplin/renderer';
 const MarkdownIt = require('markdown-it');
 
 export async function loadMustachePartials(partialDir: string) {
-	const output: Record<string, string> = {};
+	const output: Partials = {};
 	const files = await fs.readdir(partialDir);
 	for (const f of files) {
 		const name = filename(f);
@@ -47,7 +47,17 @@ export function getMarkdownIt() {
 }
 
 export function markdownToPageHtml(md: string, templateParams: TemplateParams): string {
+	const html = markdownToHtml(md);
+	return renderMustache(html, templateParams);
+}
+
+export const markdownToHtml = (md: string): string => {
 	const markdownIt = getMarkdownIt();
 	markdownIt.use(headerAnchor);
-	return renderMustache(markdownIt.render(md), templateParams);
-}
+	markdownIt.linkify.set({
+		'fuzzyLink': false,
+		'fuzzyIP': false,
+		'fuzzyEmail': false,
+	});
+	return markdownIt.render(md);
+};

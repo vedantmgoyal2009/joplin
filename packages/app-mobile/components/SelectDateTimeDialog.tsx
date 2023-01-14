@@ -68,7 +68,7 @@ export default class SelectDateTimeDialog extends React.PureComponent<any, any> 
 	}
 
 	UNSAFE_componentWillReceiveProps(newProps: any) {
-		if (newProps.date != this.state.date) {
+		if (newProps.date !== this.state.date) {
 			this.setState({ date: newProps.date });
 		}
 	}
@@ -103,7 +103,7 @@ export default class SelectDateTimeDialog extends React.PureComponent<any, any> 
 		return (
 			<View style={{ flex: 0, margin: 20, alignItems: 'center' }}>
 				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-					{ this.state.date && <Text style={{ ...theme.normalText,color: theme.color, marginRight: 10 }}>{time.formatDateToLocal(this.state.date)}</Text> }
+					{ this.state.date && <Text style={{ ...theme.normalText, color: theme.color, marginRight: 10 }}>{time.formatDateToLocal(this.state.date)}</Text> }
 					<Button title="Set date" onPress={this.onSetDate} />
 				</View>
 				<DateTimePickerModal

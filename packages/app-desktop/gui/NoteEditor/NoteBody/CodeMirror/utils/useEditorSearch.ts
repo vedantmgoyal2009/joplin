@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import shim from '@joplin/lib/shim';
+import Logger from '@joplin/lib/Logger';
+
+const logger = Logger.create('useEditorSearch');
 
 export default function useEditorSearch(CodeMirror: any) {
 
@@ -23,7 +26,16 @@ export default function useEditorSearch(CodeMirror: any) {
 
 	function clearOverlay(cm: any) {
 		if (overlay) cm.removeOverlay(overlay);
-		if (scrollbarMarks) scrollbarMarks.clear();
+		if (scrollbarMarks) {
+			try {
+				scrollbarMarks.clear();
+			} catch (error) {
+				// This can randomly crash the app so just print a warning since
+				// it's probably not critical.
+				// https://github.com/laurent22/joplin/issues/7499
+				logger.error('useEditorSearch: Could not clear scrollbar marks:', error);
+			}
+		}
 
 		if (overlayTimeout) shim.clearTimeout(overlayTimeout);
 
@@ -37,7 +49,7 @@ export default function useEditorSearch(CodeMirror: any) {
 		return { token: function(stream: any) {
 			query.lastIndex = stream.pos;
 			const match = query.exec(stream.string);
-			if (match && match.index == stream.pos) {
+			if (match && match.index === stream.pos) {
 				stream.pos += match[0].length || 1;
 				return 'search-marker';
 			} else if (match) {
@@ -126,7 +138,7 @@ export default function useEditorSearch(CodeMirror: any) {
 
 		// SEARCHOVERLAY
 		// We only want to highlight all matches when there is only 1 search term
-		if (keywords.length !== 1 || keywords[0].value == '') {
+		if (keywords.length !== 1 || keywords[0].value === '') {
 			clearOverlay(this);
 			const prev = keywords.length > 1 ? keywords[0].value : '';
 			setPreviousKeywordValue(prev);

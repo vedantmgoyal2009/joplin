@@ -5,14 +5,14 @@ import shim from '@joplin/lib/shim';
 import UndoRedoService from '@joplin/lib/services/UndoRedoService';
 import NoteBodyViewer from '../NoteBodyViewer/NoteBodyViewer';
 import checkPermissions from '../../utils/checkPermissions';
-import NoteEditor, { ChangeEvent, UndoRedoDepthChangeEvent } from '../NoteEditor/NoteEditor';
+import NoteEditor from '../NoteEditor/NoteEditor';
+import { ChangeEvent, UndoRedoDepthChangeEvent } from '../NoteEditor/types';
 
 const FileViewer = require('react-native-file-viewer').default;
 const React = require('react');
 const { Platform, Keyboard, View, TextInput, StyleSheet, Linking, Image, Share, PermissionsAndroid } = require('react-native');
 const { connect } = require('react-redux');
 // const { MarkdownEditor } = require('@joplin/lib/../MarkdownEditor/index.js');
-const RNFS = require('react-native-fs');
 import Note from '@joplin/lib/models/Note';
 import BaseItem from '@joplin/lib/models/BaseItem';
 import Resource from '@joplin/lib/models/Resource';
@@ -22,10 +22,10 @@ const md5 = require('md5');
 const { BackButtonService } = require('../../services/back-button.js');
 import NavService from '@joplin/lib/services/NavService';
 import BaseModel from '@joplin/lib/BaseModel';
-const { ActionButton } = require('../action-button.js');
+import ActionButton from '../ActionButton';
 const { fileExtension, safeFileExtension } = require('@joplin/lib/path-utils');
 const mimeUtils = require('@joplin/lib/mime-utils.js').mime;
-const { ScreenHeader } = require('../screen-header.js');
+import ScreenHeader from '../ScreenHeader';
 const NoteTagsDialog = require('./NoteTagsDialog');
 import time from '@joplin/lib/time';
 const { Checkbox } = require('../checkbox.js');
@@ -36,10 +36,9 @@ const { BaseScreenComponent } = require('../base-screen.js');
 const { themeStyle, editorFont } = require('../global-style.js');
 const { dialogs } = require('../../utils/dialogs.js');
 const DialogBox = require('react-native-dialogbox').default;
-const DocumentPicker = require('react-native-document-picker').default;
 const ImageResizer = require('react-native-image-resizer').default;
 const shared = require('@joplin/lib/components/shared/note-screen-shared.js');
-const ImagePicker = require('react-native-image-picker').default;
+import { ImagePickerResponse, launchImageLibrary } from 'react-native-image-picker';
 import SelectDateTimeDialog from '../SelectDateTimeDialog';
 import ShareExtension from '../../utils/ShareExtension.js';
 import CameraView from '../CameraView';
@@ -103,8 +102,8 @@ class NoteScreenComponent extends BaseScreenComponent {
 			if (this.isModified()) {
 				const buttonId = await dialogs.pop(this, _('This note has been modified:'), [{ text: _('Save changes'), id: 'save' }, { text: _('Discard changes'), id: 'discard' }, { text: _('Cancel'), id: 'cancel' }]);
 
-				if (buttonId == 'cancel') return true;
-				if (buttonId == 'save') await this.saveNoteButton_press();
+				if (buttonId === 'cancel') return true;
+				if (buttonId === 'save') await this.saveNoteButton_press();
 			}
 
 			return false;
@@ -126,7 +125,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 				return false;
 			}
 
-			if (this.state.mode == 'edit') {
+			if (this.state.mode === 'edit') {
 				Keyboard.dismiss();
 
 				this.setState({
@@ -161,8 +160,8 @@ class NoteScreenComponent extends BaseScreenComponent {
 
 		this.onJoplinLinkClick_ = async (msg: string) => {
 			try {
-				if (msg.indexOf('joplin://') === 0) {
-					const resourceUrlInfo = urlUtils.parseResourceUrl(msg);
+				const resourceUrlInfo = urlUtils.parseResourceUrl(msg);
+				if (resourceUrlInfo) {
 					const itemId = resourceUrlInfo.itemId;
 					const item = await BaseItem.loadItemById(itemId);
 					if (!item) throw new Error(_('No item with ID %s', itemId));
@@ -332,7 +331,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 				textAlignVertical: 'top',
 				color: theme.color,
 				backgroundColor: theme.backgroundColor,
-				fontSize: theme.fontSize,
+				fontSize: this.props.editorFontSize,
 				fontFamily: editorFont(this.props.editorFont),
 			},
 			noteBodyViewer: {
@@ -540,18 +539,12 @@ class NoteScreenComponent extends BaseScreenComponent {
 		});
 	}
 
-	async pickDocument() {
-		try {
-			const result = await DocumentPicker.pick();
-			return result;
-		} catch (error) {
-			if (DocumentPicker.isCancel(error)) {
-				console.info('pickDocument: user has cancelled');
-				return null;
-			} else {
-				throw error;
-			}
+	private async pickDocuments() {
+		const result = await shim.fsDriver().pickDocument({ multiple: true });
+		if (!result) {
+			console.info('pickDocuments: user has cancelled');
 		}
+		return result;
 	}
 
 	async imageDimensions(uri: string) {
@@ -565,14 +558,6 @@ class NoteScreenComponent extends BaseScreenComponent {
 					reject(error);
 				}
 			);
-		});
-	}
-
-	showImagePicker(options: any) {
-		return new Promise((resolve) => {
-			ImagePicker.launchImageLibrary(options, (response: any) => {
-				resolve(response);
-			});
 		});
 	}
 
@@ -603,7 +588,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 
 			reg.logger().info('New dimensions ', dimensions);
 
-			const format = mimeType == 'image/png' ? 'PNG' : 'JPEG';
+			const format = mimeType === 'image/png' ? 'PNG' : 'JPEG';
 			reg.logger().info(`Resizing image ${localFilePath}`);
 			const resizedImage = await ImageResizer.createResizedImage(localFilePath, dimensions.width, dimensions.height, format, 85); // , 0, targetPath);
 
@@ -611,15 +596,15 @@ class NoteScreenComponent extends BaseScreenComponent {
 			reg.logger().info('Resized image ', resizedImagePath);
 			reg.logger().info(`Moving ${resizedImagePath} => ${targetPath}`);
 
-			await RNFS.copyFile(resizedImagePath, targetPath);
+			await shim.fsDriver().copy(resizedImagePath, targetPath);
 
 			try {
-				await RNFS.unlink(resizedImagePath);
+				await shim.fsDriver().unlink(resizedImagePath);
 			} catch (error) {
 				reg.logger().warn('Error when unlinking cached file: ', error);
 			}
 		} else {
-			await RNFS.copyFile(localFilePath, targetPath);
+			await shim.fsDriver().copy(localFilePath, targetPath);
 		}
 
 		return true;
@@ -628,16 +613,6 @@ class NoteScreenComponent extends BaseScreenComponent {
 	async attachFile(pickerResponse: any, fileType: string) {
 		if (!pickerResponse) {
 			// User has cancelled
-			return;
-		}
-
-		if (pickerResponse.error) {
-			reg.logger().warn('Got error from picker', pickerResponse.error);
-			return;
-		}
-
-		if (pickerResponse.didCancel) {
-			reg.logger().info('User cancelled picker');
 			return;
 		}
 
@@ -676,7 +651,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 		const targetPath = Resource.fullPath(resource);
 
 		try {
-			if (mimeType == 'image/jpeg' || mimeType == 'image/jpg' || mimeType == 'image/png') {
+			if (mimeType === 'image/jpeg' || mimeType === 'image/jpg' || mimeType === 'image/png') {
 				const done = await this.resizeImage(localFilePath, targetPath, mimeType);
 				if (!done) return;
 			} else {
@@ -685,11 +660,11 @@ class NoteScreenComponent extends BaseScreenComponent {
 					return;
 				} else {
 					await shim.fsDriver().copy(localFilePath, targetPath);
-
 					const stat = await shim.fsDriver().stat(targetPath);
-					if (stat.size >= 10000000) {
+
+					if (stat.size >= 200 * 1024 * 1024) {
 						await shim.fsDriver().remove(targetPath);
-						throw new Error('Resources larger than 10 MB are not currently supported as they may crash the mobile applications. The issue is being investigated and will be fixed at a later time.');
+						throw new Error('Resources larger than 200 MB are not currently supported as they may crash the mobile applications. The issue is being investigated and will be fixed at a later time.');
 					}
 				}
 			}
@@ -711,7 +686,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 
 		const newNote = Object.assign({}, this.state.note);
 
-		if (this.state.mode == 'edit' && !!this.selection) {
+		if (this.state.mode === 'edit' && !!this.selection) {
 			const newText = `\n${resourceTag}\n`;
 
 			const prefix = newNote.body.substring(0, this.selection.start);
@@ -734,9 +709,23 @@ class NoteScreenComponent extends BaseScreenComponent {
 		this.scheduleSave();
 	}
 
-	async attachPhoto_onPress() {
-		const response = await this.showImagePicker({ mediaType: 'photo', noData: true });
-		await this.attachFile(response, 'image');
+	private async attachPhoto_onPress() {
+		// the selection Limit should be specfied. I think 200 is enough?
+		const response: ImagePickerResponse = await launchImageLibrary({ mediaType: 'photo', includeBase64: false, selectionLimit: 200 });
+
+		if (response.errorCode) {
+			reg.logger().warn('Got error from picker', response.errorCode);
+			return;
+		}
+
+		if (response.didCancel) {
+			reg.logger().info('User cancelled picker');
+			return;
+		}
+
+		for (const asset of response.assets) {
+			await this.attachFile(asset, 'image');
+		}
 	}
 
 	takePhoto_onPress() {
@@ -747,8 +736,6 @@ class NoteScreenComponent extends BaseScreenComponent {
 		void this.attachFile(
 			{
 				uri: data.uri,
-				didCancel: false,
-				error: null,
 				type: 'image/jpg',
 			},
 			'image'
@@ -761,9 +748,11 @@ class NoteScreenComponent extends BaseScreenComponent {
 		this.setState({ showCamera: false });
 	}
 
-	async attachFile_onPress() {
-		const response = await this.pickDocument();
-		await this.attachFile(response, 'all');
+	private async attachFile_onPress() {
+		const response = await this.pickDocuments();
+		for (const asset of response) {
+			await this.attachFile(asset, 'all');
+		}
 	}
 
 	toggleIsTodo_onPress() {
@@ -866,6 +855,27 @@ class NoteScreenComponent extends BaseScreenComponent {
 		return output;
 	}
 
+	async showAttachMenu() {
+		const buttons = [];
+
+		// On iOS, it will show "local files", which means certain files saved from the browser
+		// and the iCloud files, but it doesn't include photos and images from the CameraRoll
+		//
+		// On Android, it will depend on the phone, but usually it will allow browing all files and photos.
+		buttons.push({ text: _('Attach file'), id: 'attachFile' });
+
+		// Disabled on Android because it doesn't work due to permission issues, but enabled on iOS
+		// because that's only way to browse photos from the camera roll.
+		if (Platform.OS === 'ios') buttons.push({ text: _('Attach photo'), id: 'attachPhoto' });
+		buttons.push({ text: _('Take photo'), id: 'takePhoto' });
+
+		const buttonId = await dialogs.pop(this, _('Choose an option'), buttons);
+
+		if (buttonId === 'takePhoto') this.takePhoto_onPress();
+		if (buttonId === 'attachFile') void this.attachFile_onPress();
+		if (buttonId === 'attachPhoto') void this.attachPhoto_onPress();
+	}
+
 	menuOptions() {
 		const note = this.state.note;
 		const isTodo = note && !!note.is_todo;
@@ -890,26 +900,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 		if (canAttachPicture) {
 			output.push({
 				title: _('Attach...'),
-				onPress: async () => {
-					const buttons = [];
-
-					// On iOS, it will show "local files", which means certain files saved from the browser
-					// and the iCloud files, but it doesn't include photos and images from the CameraRoll
-					//
-					// On Android, it will depend on the phone, but usually it will allow browing all files and photos.
-					buttons.push({ text: _('Attach file'), id: 'attachFile' });
-
-					// Disabled on Android because it doesn't work due to permission issues, but enabled on iOS
-					// because that's only way to browse photos from the camera roll.
-					if (Platform.OS === 'ios') buttons.push({ text: _('Attach photo'), id: 'attachPhoto' });
-					buttons.push({ text: _('Take photo'), id: 'takePhoto' });
-
-					const buttonId = await dialogs.pop(this, _('Choose an option'), buttons);
-
-					if (buttonId === 'takePhoto') this.takePhoto_onPress();
-					if (buttonId === 'attachFile') void this.attachFile_onPress();
-					if (buttonId === 'attachPhoto') void this.attachPhoto_onPress();
-				},
+				onPress: () => this.showAttachMenu(),
 			});
 		}
 
@@ -1068,7 +1059,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 		const keywords = this.props.searchQuery && !!this.props.ftsEnabled ? this.props.highlightedWords : emptyArray;
 
 		let bodyComponent = null;
-		if (this.state.mode == 'view') {
+		if (this.state.mode === 'view') {
 			// Note: as of 2018-12-29 it's important not to display the viewer if the note body is empty,
 			// to avoid the HACK_webviewLoadingState related bug.
 			bodyComponent =
@@ -1128,6 +1119,8 @@ class NoteScreenComponent extends BaseScreenComponent {
 					/>
 				);
 			} else {
+				const editorStyle = this.styles().bodyTextInput;
+
 				bodyComponent = <NoteEditor
 					ref={this.editorRef}
 					themeId={this.props.themeId}
@@ -1136,33 +1129,41 @@ class NoteScreenComponent extends BaseScreenComponent {
 					onChange={this.onBodyChange}
 					onSelectionChange={this.body_selectionChange}
 					onUndoRedoDepthChange={this.onUndoRedoDepthChange}
-					style={this.styles().bodyTextInput}
+					onAttach={() => this.showAttachMenu()}
+					style={{
+						...editorStyle,
+						paddingLeft: 0,
+						paddingRight: 0,
+					}}
+					contentStyle={{
+						// Apply padding to the editor's content, but not the toolbar.
+						paddingLeft: editorStyle.paddingLeft,
+						paddingRight: editorStyle.paddingRight,
+					}}
 				/>;
 			}
 		}
 
 		const renderActionButton = () => {
-			const buttons = [];
-
-			buttons.push({
-				title: _('Edit'),
+			const editButton = {
+				label: _('Edit'),
 				icon: 'md-create',
 				onPress: () => {
 					this.setState({ mode: 'edit' });
 
 					this.doFocusUpdate_ = true;
 				},
-			});
+			};
 
-			if (this.state.mode == 'edit') return null;
+			if (this.state.mode === 'edit') return null;
 
-			return <ActionButton multiStates={true} buttons={buttons} buttonIndex={0} />;
+			return <ActionButton mainButton={editButton} />;
 		};
 
 		const actionButtonComp = renderActionButton();
 
 		// Save button is not really needed anymore with the improved save logic
-		const showSaveButton = false; // this.state.mode == 'edit' || this.isModified() || this.saveButtonHasBeenShown_;
+		const showSaveButton = false; // this.state.mode === 'edit' || this.isModified() || this.saveButtonHasBeenShown_;
 		const saveButtonDisabled = true;// !this.isModified();
 
 		if (showSaveButton) this.saveButtonHasBeenShown_ = true;
@@ -1201,8 +1202,8 @@ class NoteScreenComponent extends BaseScreenComponent {
 					onSaveButtonPress={this.saveNoteButton_press}
 					showSideMenuButton={false}
 					showSearchButton={false}
-					showUndoButton={this.state.undoRedoButtonState.canUndo || this.state.undoRedoButtonState.canRedo}
-					showRedoButton={this.state.undoRedoButtonState.canRedo}
+					showUndoButton={(this.state.undoRedoButtonState.canUndo || this.state.undoRedoButtonState.canRedo) && this.state.mode === 'edit'}
+					showRedoButton={this.state.undoRedoButtonState.canRedo && this.state.mode === 'edit'}
 					undoButtonDisabled={!this.state.undoRedoButtonState.canUndo && this.state.undoRedoButtonState.canRedo}
 					onUndoButtonPress={this.screenHeader_undoButtonPress}
 					onRedoButtonPress={this.screenHeader_redoButtonPress}
@@ -1234,12 +1235,13 @@ const NoteScreen = connect((state: any) => {
 		searchQuery: state.searchQuery,
 		themeId: state.settings.theme,
 		editorFont: [state.settings['style.editor.fontFamily']],
+		editorFontSize: state.settings['style.editor.fontSize'],
 		ftsEnabled: state.settings['db.ftsEnabled'],
 		sharedData: state.sharedData,
 		showSideMenu: state.showSideMenu,
 		provisionalNoteIds: state.provisionalNoteIds,
 		highlightedWords: state.highlightedWords,
-		useEditorBeta: state.settings['editor.beta'],
+		useEditorBeta: !state.settings['editor.usePlainText'],
 	};
 })(NoteScreenComponent);
 

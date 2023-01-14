@@ -10,6 +10,7 @@ export default function(frameWindow: any, isReady: boolean, pluginId: string, vi
 		return () => {
 			PostMessageService.instance().unregisterResponder(ResponderComponentType.UserWebview, viewId);
 		};
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [viewId]);
 
 	useEffect(() => {
@@ -37,7 +38,8 @@ export default function(frameWindow: any, isReady: boolean, pluginId: string, vi
 		frameWindow.addEventListener('message', onMessage_);
 
 		return () => {
-			frameWindow.removeEventListener('message', onMessage_);
+			if (frameWindow?.removeEventListener) frameWindow.removeEventListener('message', onMessage_);
 		};
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [frameWindow, isReady, pluginId, viewId]);
 }

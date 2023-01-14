@@ -20,13 +20,12 @@ function newResourceFetcher(synchronizer: Synchronizer) {
 
 describe('Synchronizer.e2ee', function() {
 
-	beforeEach(async (done) => {
+	beforeEach(async () => {
 		insideBeforeEach = true;
 
 		await setupDatabaseAndSynchronizer(1);
 		await setupDatabaseAndSynchronizer(2);
 		await switchClient(1);
-		done();
 
 		insideBeforeEach = false;
 	});
@@ -99,7 +98,7 @@ describe('Synchronizer.e2ee', function() {
 		expect(remoteInfo.masterKeys[0].hasBeenUsed).toBe(true);
 	}));
 
-	it('should enable encryption automatically when downloading new master key (and none was previously available)',(async () => {
+	it('should enable encryption automatically when downloading new master key (and none was previously available)', (async () => {
 		// Enable encryption on client 1 and sync an item
 		setEncryptionEnabled(true);
 		await loadEncryptionMasterKey();

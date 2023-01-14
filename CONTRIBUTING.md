@@ -31,7 +31,7 @@ Joplin is available in multiple languages thanks to the help of its users. You c
 
 If you want to start contributing to the project's code, please follow these guidelines before creating a pull request: 
 
-- Explain WHY you want to add this change. Explain it inside the pull request and you may link to an issue for additional information, but the PR should give a clear overview of why you want to add this.
+- The top post of the pull request should contain a full, self-contained explanation of the feature: what it does, how it does it, with examples of usage and screenshots. Also explain why you want to add this - what problem does it solve. Do not simply add a text `Implement feature #4345` or link to forum posts, because the information there will most likely be outdated or confusing (multiple discussions and opinions). The pull request needs to be self-contained.
 - Bug fixes are always welcome. Start by reviewing the [list of bugs](https://github.com/laurent22/joplin/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 - A good way to easily start contributing is to pick and work on a [good first issue](https://github.com/laurent22/joplin/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). We try to make these issues as clear as possible and provide basic info on how the code should be changed, and if something is unclear feel free to ask for more information on the issue.
 - Before adding a new feature, ask about it in the [Github Issue Tracker](https://github.com/laurent22/joplin/issues?utf8=%E2%9C%93&q=is%3Aissue) or the [Joplin Forum](https://discourse.joplinapp.org/), or check if existing discussions exist to make sure the new functionality is desired.
@@ -43,13 +43,17 @@ If you want to start contributing to the project's code, please follow these gui
 
 Building the apps is relatively easy - please [see the build instructions](https://github.com/laurent22/joplin/blob/dev/BUILD.md) for more details.
 
+## Signing the Individual Contributor License Agreement
+
+All contributors to the project must sign our [Individual Contributor License Agreement](https://github.com/laurent22/joplin/blob/dev/readme/cla.md).
+
 ## Coding style
 
-Coding style is enforced by a pre-commit hook that runs eslint. This hook is installed whenever running `yarn install` on any of the application directory. If for some reason the pre-commit hook didn't get installed, you can manually install it by running `yarn install` at the root of the repository.
+Please see [readme/coding_style.md](readme/coding_style.md).
 
-For new React components, please use [React Hooks](https://reactjs.org/docs/hooks-intro.html). For new code in general, please use TypeScript. Even if you are modifying a file that was originally in JavaScript you should ideally convert it first to TypeScript before modifying it. Doing so is relatively easy and it helps maintain code quality.
+## GUI style
 
-For changes made to the Desktop client that affect the user interface, refer to `packages/app-desktop/theme.ts` for all styling information. The goal is to create a consistent user interface to allow for easy navigation of Joplin's various features and improve the overall user experience.
+For changes made to the Desktop and mobile clients that affect the user interface, refer to `packages/lib/theme.ts` for all styling information. The goal is to create a consistent user interface to allow for easy navigation of Joplin's various features and improve the overall user experience.
 
 ## Automated tests
 

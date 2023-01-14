@@ -158,19 +158,23 @@
 
 			for (let i = 0; i < assets.length; i++) {
 				const asset = assets[i];
+				// # and ? can be used in valid paths and shouldn't be treated as the start of a query or fragment
+				const encodedPath = asset.path
+						.replaceAll('#','%23')
+						.replaceAll('?','%3F')
 
-				const assetId = asset.name ? asset.name : asset.path;
+				const assetId = asset.name ? asset.name : encodedPath;
 				if (pluginAssetsAdded_[assetId]) continue;
 				pluginAssetsAdded_[assetId] = true;
 
 				if (asset.mime === 'application/javascript') {
 					const script = document.createElement('script');
-					script.src = asset.path;
+					script.src = encodedPath;
 					pluginAssetsContainer.appendChild(script);
 				} else if (asset.mime === 'text/css') {
 					const link = document.createElement('link');
 					link.rel = 'stylesheet';
-					link.href = asset.path;
+					link.href = encodedPath
 					pluginAssetsContainer.appendChild(link);
 				}
 			}
@@ -579,6 +583,17 @@
 			}
 		}
 
+		ipc.textSelected = function(event) {
+			ipcProxySendToHost('contextMenu', {
+				type: 'text',
+				textToCopy: event.text,
+			});
+		}
+
+		ipc.openPdfViewer = function(event) {
+			ipcProxySendToHost('openPdfViewer', { resourceId: event.resourceId, mime: 'application/pdf', pageNo: event.pageNo || 1 });
+		}
+
 		window.addEventListener('hashchange', webviewLib.logEnabledEventHandler(e => {
 			if (!window.location.hash) return;
 
@@ -651,6 +666,17 @@
 		}));
 		document.addEventListener('dragover', webviewLib.logEnabledEventHandler(e => {
 			e.preventDefault();
+		}));
+
+		document.addEventListener('click', webviewLib.logEnabledEventHandler(e => {
+			document.querySelectorAll('.media-pdf').forEach(element => {
+				if(!!element.contentWindow){
+					element.contentWindow.postMessage({
+						type: 'blur'
+					}, '*');
+				}
+			}
+			);
 		}));
 
 		let lastClientWidth_ = NaN, lastClientHeight_ = NaN, lastScrollTop_ = NaN;

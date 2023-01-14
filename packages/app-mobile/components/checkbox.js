@@ -2,7 +2,9 @@ const React = require('react');
 const Component = React.Component;
 const { View, TouchableHighlight } = require('react-native');
 const Icon = require('react-native-vector-icons/Ionicons').default;
-Icon.loadFont();
+// We need this to suppress the useless warning
+// https://github.com/oblador/react-native-vector-icons/issues/1465
+Icon.loadFont().catch((error) => { console.info(error); });
 
 const styles = {
 	checkboxIcon: {
@@ -61,7 +63,14 @@ class Checkbox extends Component {
 		// if (style.display) thStyle.display = style.display;
 
 		return (
-			<TouchableHighlight onPress={() => this.onPress()} style={thStyle}>
+			<TouchableHighlight
+				onPress={() => this.onPress()}
+				style={thStyle}
+				accessibilityRole="checkbox"
+				accessibilityState={{
+					checked: this.state.checked,
+				}}
+				accessibilityLabel={this.props.accessibilityLabel ?? ''}>
 				<Icon name={iconName} style={checkboxIconStyle} />
 			</TouchableHighlight>
 		);

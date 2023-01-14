@@ -9,7 +9,7 @@ import Resource from '../../models/Resource';
 import * as fs from 'fs-extra';
 import { FolderEntity, NoteEntity, ResourceEntity } from '../database/types';
 import { ModelType } from '../../BaseModel';
-const ArrayUtils = require('../../ArrayUtils');
+import * as ArrayUtils from '../../ArrayUtils';
 
 async function recreateExportDir() {
 	const dir = exportDir();
@@ -82,11 +82,10 @@ function memoryExportModule() {
 
 describe('services_InteropService', function() {
 
-	beforeEach(async (done) => {
+	beforeEach(async () => {
 		await setupDatabaseAndSynchronizer(1);
 		await switchClient(1);
 		await recreateExportDir();
-		done();
 	});
 
 	it('should export and import folders', (async () => {

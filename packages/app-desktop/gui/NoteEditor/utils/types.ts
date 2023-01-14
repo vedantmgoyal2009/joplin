@@ -27,7 +27,6 @@ export interface NoteEditorProps {
 	editorNoteStatuses: any;
 	syncStarted: boolean;
 	bodyEditor: string;
-	folders: any[];
 	notesParentType: string;
 	selectedNoteTags: any[];
 	lastEditorScrollPercents: any;
@@ -76,6 +75,7 @@ export interface NoteBodyEditorProps {
 	fontSize: number;
 	contentMaxWidth: number;
 	isSafeMode: boolean;
+	noteId: string;
 }
 
 export interface FormNote {

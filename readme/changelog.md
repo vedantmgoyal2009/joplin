@@ -1,5 +1,91 @@
 # Joplin changelog
 
+## [v2.10.4](https://github.com/laurent22/joplin/releases/tag/v2.10.4) (Pre-release) - 2023-01-05T13:09:20Z
+
+- Fixed: Fixed certain plugins that were using the sqlite3 database ([a43ce33](https://github.com/laurent22/joplin/commit/a43ce33))
+- Fixed: Plugin API DirectoryPath edit problems when path contain spaces ([#7018](https://github.com/laurent22/joplin/issues/7018))
+
+## [v2.10.3](https://github.com/laurent22/joplin/releases/tag/v2.10.3) (Pre-release) - 2022-12-31T15:53:23Z
+
+- Improved: Resolve [#6254](https://github.com/laurent22/joplin/issues/6254): &lt;details&gt; elements remain closed when exporting to PDF ([#7515](https://github.com/laurent22/joplin/issues/7515)) ([#6254](https://github.com/laurent22/joplin/issues/6254) by Hitarth Thummar)
+- Improved: Switch license to AGPL-3.0 ([faf0a4e](https://github.com/laurent22/joplin/commit/faf0a4e))
+- Fixed: Fixed crash when closing PDF ([#7528](https://github.com/laurent22/joplin/issues/7528))
+- Fixed: Fixes import of tasklists from enex files ([#7344](https://github.com/laurent22/joplin/issues/7344)) ([#7329](https://github.com/laurent22/joplin/issues/7329) by [@Wartijn](https://github.com/Wartijn))
+- Fixed: Press Enter to select a tag ([#7493](https://github.com/laurent22/joplin/issues/7493))
+- Fixed: Profile paths that contain special characters can break note rendering ([#7449](https://github.com/laurent22/joplin/issues/7449)) ([#7434](https://github.com/laurent22/joplin/issues/7434) by [@Wartijn](https://github.com/Wartijn))
+- Fixed: Random crash when searching ([#7499](https://github.com/laurent22/joplin/issues/7499))
+- Fixed: Search field doesn't get focus when pressing Ctrl+F ([#7529](https://github.com/laurent22/joplin/issues/7529)) ([#7520](https://github.com/laurent22/joplin/issues/7520) by Betty Alagwu)
+
+## [v2.10.2](https://github.com/laurent22/joplin/releases/tag/v2.10.2) (Pre-release) - 2022-12-18T18:05:08Z
+
+- Improved: Update Mermaid: 9.1.7 to 9.2.2 ([#7330](https://github.com/laurent22/joplin/issues/7330) by Helmut K. C. Tessarek)
+- Fixed: Fix pasting plain text ([#7045](https://github.com/laurent22/joplin/issues/7045)) ([#7036](https://github.com/laurent22/joplin/issues/7036) by Self Not Found)
+- Fixed: Open callback URLs from within the application ([#7354](https://github.com/laurent22/joplin/issues/7354))
+
+## [v2.9.17](https://github.com/laurent22/joplin/releases/tag/v2.9.17) - 2022-11-15T10:28:37Z
+
+- Fixed: Switching a note using Sidebar is slow and grayed out ([#6430](https://github.com/laurent22/joplin/issues/6430)) ([#6416](https://github.com/laurent22/joplin/issues/6416) by Kenichi Kobayashi)
+- Security: Fix XSS when a specially crafted string is passed to the renderer ([762b4e8](https://github.com/laurent22/joplin/commit/762b4e8)) (PoC by [@Alise](https://github.com/a1ise))
+
+## [v2.9.12](https://github.com/laurent22/joplin/releases/tag/v2.9.12) (Pre-release) - 2022-11-01T17:06:05Z
+
+- Improved: Display the plugin name in dialog boxes created by plugins ([#6979](https://github.com/laurent22/joplin/issues/6979))
+- Improved: Regression: Plugin CSS files were no longer being loaded correctly ([99a61f1](https://github.com/laurent22/joplin/commit/99a61f1))
+- Improved: Remove unnecessary PDF viewer messages ([db4c6ea](https://github.com/laurent22/joplin/commit/db4c6ea))
+- Fixed: Fix exporting resources to md and md + frontmatter ([#6768](https://github.com/laurent22/joplin/issues/6768)) ([#6721](https://github.com/laurent22/joplin/issues/6721) by [@SFulpius](https://github.com/SFulpius))
+- Fixed: Fixed crash when setting spellchecker language to en-IN ([ae17801](https://github.com/laurent22/joplin/commit/ae17801))
+- Fixed: Fixed sidebar tag header click ([5b80fbc](https://github.com/laurent22/joplin/commit/5b80fbc))
+- Fixed: Fixes an error when importing a shortcut map and canceling the dialog ([#6975](https://github.com/laurent22/joplin/issues/6975) by Ahmed Azzam)
+
+## [v2.9.11](https://github.com/laurent22/joplin/releases/tag/v2.9.11) (Pre-release) - 2022-10-23T16:09:58Z
+
+- New: Add PDF full screen viewer ([#6821](https://github.com/laurent22/joplin/issues/6821) by [@asrient](https://github.com/asrient))
+- New: Add support for multi-language spell check ([#6617](https://github.com/laurent22/joplin/issues/6617))
+- New: Add zoom feature on PDF viewer ([#6748](https://github.com/laurent22/joplin/issues/6748) by [@asrient](https://github.com/asrient))
+- New: Added PDF viewer options ([#6800](https://github.com/laurent22/joplin/issues/6800) by [@asrient](https://github.com/asrient))
+- New: Plugins: Add support for media links in plugin manifest.json ([#6672](https://github.com/laurent22/joplin/issues/6672) by [@Retrove](https://github.com/Retrove))
+- Improved: Bundle default plugins with desktop application ([#6679](https://github.com/laurent22/joplin/issues/6679) by Mayank Bondre)
+- Improved: Display default notebook icons when at least one notebook has an icon ([7974df9](https://github.com/laurent22/joplin/commit/7974df9))
+- Improved: Install default plugins on first app start ([#6585](https://github.com/laurent22/joplin/issues/6585) by Mayank Bondre)
+- Improved: PDF scroll persistence ([#6747](https://github.com/laurent22/joplin/issues/6747) by [@asrient](https://github.com/asrient))
+- Fixed: Avoid reloading loaded plugin scripts ([#6742](https://github.com/laurent22/joplin/issues/6742)) ([#6719](https://github.com/laurent22/joplin/issues/6719) by [@SeptemberHX](https://github.com/SeptemberHX))
+- Fixed: Fix resources sync when proxy is set ([#6817](https://github.com/laurent22/joplin/issues/6817)) ([#6688](https://github.com/laurent22/joplin/issues/6688) by Self Not Found)
+- Fixed: Fixed file and directory paths in plugin setting dialogs ([#6692](https://github.com/laurent22/joplin/issues/6692))
+- Fixed: Fixed names of imported duplicate notebooks ([#6704](https://github.com/laurent22/joplin/issues/6704))
+
+## [v2.9.4](https://github.com/laurent22/joplin/releases/tag/v2.9.4) (Pre-release) - 2022-08-18T16:52:26Z
+
+- Fixed macOS release
+
+## [v2.9.3](https://github.com/laurent22/joplin/releases/tag/v2.9.3) (Pre-release) - 2022-08-18T13:11:09Z
+
+- Fixed Linux release
+
+## [v2.9.2](https://github.com/laurent22/joplin/releases/tag/v2.9.2) (Pre-release) - 2022-08-12T18:12:12Z
+
+- Improved: Allow electron flag to disable smooth scrolling ([#6712](https://github.com/laurent22/joplin/issues/6712) by [@joserebelo](https://github.com/joserebelo))
+- Improved: New Embedded Pdf Viewer ([#6681](https://github.com/laurent22/joplin/issues/6681) by [@asrient](https://github.com/asrient))
+- Fixed: Do not encrypt non-owned note if it was not shared encrypted ([#6645](https://github.com/laurent22/joplin/issues/6645))
+- Fixed: Fixed broken image links ([#6590](https://github.com/laurent22/joplin/issues/6590)) ([#6570](https://github.com/laurent22/joplin/issues/6570) by [@SFulpius](https://github.com/SFulpius))
+- Fixed: Play flac files ([#6666](https://github.com/laurent22/joplin/issues/6666)) ([#6434](https://github.com/laurent22/joplin/issues/6434) by [@SFulpius](https://github.com/SFulpius))
+
+## [v2.9.1](https://github.com/laurent22/joplin/releases/tag/v2.9.1) (Pre-release) - 2022-07-11T09:59:32Z
+
+- New: Plugins: Added joplin.versionInfo method ([3b35ab6](https://github.com/laurent22/joplin/commit/3b35ab6))
+- Improved: Add support for proxy ([#6537](https://github.com/laurent22/joplin/issues/6537)) ([#164](https://github.com/laurent22/joplin/issues/164) by Jason Williams)
+- Improved: Checkbox don't function while checkbox format button hidden from toolbar ([#6567](https://github.com/laurent22/joplin/issues/6567)) ([#6172](https://github.com/laurent22/joplin/issues/6172) by [@SFulpius](https://github.com/SFulpius))
+- Improved: Update to Electron 18 ([#6496](https://github.com/laurent22/joplin/issues/6496) by [@alexmo1997](https://github.com/alexmo1997))
+- Fixed: Allow styling note list items using custom CSS ([#6542](https://github.com/laurent22/joplin/issues/6542)) ([#5178](https://github.com/laurent22/joplin/issues/5178) by Kenichi Kobayashi)
+- Fixed: App can crash with certain combinations of plugins ([#6506](https://github.com/laurent22/joplin/issues/6506))
+- Fixed: Search field focus is stolen on layout change ([#6514](https://github.com/laurent22/joplin/issues/6514))
+- Fixed: Search field would not clear as expected ([#6557](https://github.com/laurent22/joplin/issues/6557))
+- Security: Fixes XSS in GotoAnything dialog (Vulnerability found by [@ly1g3](https://github.com/ly1g3) CVE-2022-35131) ([e797ebb](https://github.com/laurent22/joplin/commit/e797ebb))
+
+## [v2.8.8](https://github.com/laurent22/joplin/releases/tag/v2.8.8) - 2022-05-17T14:48:06Z
+
+- Improved: Remove plugin backoff handler for now ([7ec3a7b](https://github.com/laurent22/joplin/commit/7ec3a7b))
+- Fixed: Dropbox login button is not visible in dark mode ([#6513](https://github.com/laurent22/joplin/issues/6513)) ([#6503](https://github.com/laurent22/joplin/issues/6503) by [@Retrove](https://github.com/Retrove))
+
 ## [v2.8.7](https://github.com/laurent22/joplin/releases/tag/v2.8.7) (Pre-release) - 2022-05-06T11:34:27Z
 
 - Improved: Sort sync target options ([814a5a0](https://github.com/laurent22/joplin/commit/814a5a0))
@@ -507,7 +593,7 @@ Attention: The default font size has been changed in the Markdown editor. You ca
 ## [v1.8.5](https://github.com/laurent22/joplin/releases/tag/v1.8.5) - 2021-05-10T11:58:14Z
 
 - Fixed: Fixed pasting of text and images from Word on Windows ([#4916](https://github.com/laurent22/joplin/issues/4916))
-- Security: Filter out NOSCRIPT tags that could be used to cause an XSS (found by [Jubair Rehman Yousafzai](https://twitter.com/jubairfolder)) ([9c20d59](https://github.com/laurent22/joplin/commit/9c20d59))
+- Security: Filter out NOSCRIPT tags that could be used to cause an XSS (CVE-2021-33295) (found by [Jubair Rehman Yousafzai](https://twitter.com/newfolderj)) ([9c20d59](https://github.com/laurent22/joplin/commit/9c20d59))
 
 ## [v1.8.4](https://github.com/laurent22/joplin/releases/tag/v1.8.4) (Pre-release) - 2021-05-09T18:05:05Z
 

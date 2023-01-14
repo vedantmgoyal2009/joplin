@@ -1,5 +1,27 @@
 # Joplin terminal app changelog
 
+## [cli-v2.9.1](https://github.com/laurent22/joplin/releases/tag/cli-v2.9.1) - 2022-10-12T14:49:48Z
+
+- Improved: Added note count indicator per notebook (#6526) (#6478 by Eduardo Esparza)
+- Improved: Toggle short ids and mv notebooks (#6671) (#1728 by Andrej Lifinzew)
+- Fixed: Do not encrypt non-owned note if it was not shared encrypted (#6645)
+- Fixed: Fix resources sync when proxy is set (#6817) (#6688 by Self Not Found)
+- Fixed: Fixed names of imported duplicate notebooks (#6704)
+
+## [cli-v2.8.1](https://github.com/laurent22/joplin/releases/tag/cli-v2.8.1) - 2022-05-18T13:02:48Z
+
+- New: Add additional time format HH.mm (#6086 by [@vincentjocodes](https://github.com/vincentjocodes))
+- Improved: Do no duplicate resources when duplicating a note (721d008)
+- Improved: Handle invalid revision patches (#6209)
+- Improved: Improve error message when revision metadata cannot be decoded, to improve debugging (a325bf6)
+- Improved: Make search engine filter keywords case insensitive (#6267) (#6266 by [@JackGruber](https://github.com/JackGruber))
+- Improved: Show login prompt for OneDrive (#5933 by Jonathan Heard)
+- Fixed: Ensure that note revision markup type is set correctly (#6261)
+- Fixed: Fixed creation of empty notebooks when importing directory of files (#6274) (#6197 by [@Retrove](https://github.com/Retrove))
+- Fixed: Fixed issue where synchroniser would try to update a shared folder that is not longer accessible (667d642)
+- Fixed: Note export could fail in some cases (regression) (#6203)
+- Fixed: Shared resource was not encrypted with correct encryption key (#6092)
+
 ## [cli-v2.6.2](https://github.com/laurent22/joplin/releases/tag/cli-v2.6.2) - 2021-12-17T11:19:45Z
 
 - New: Add date format YYYY/MM/DD (#5759 by Helmut K. C. Tessarek)

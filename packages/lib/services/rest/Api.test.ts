@@ -1,5 +1,6 @@
 import { PaginationOrderDir } from '../../models/utils/types';
 import Api, { RequestMethod } from '../../services/rest/Api';
+import { extractMediaUrls } from './routes/notes';
 import shim from '../../shim';
 import { setupDatabaseAndSynchronizer, switchClient, checkThrowAsync, db, msleep, supportDir } from '../../testing/test-utils';
 import Folder from '../../models/Folder';
@@ -9,6 +10,7 @@ import Tag from '../../models/Tag';
 import NoteTag from '../../models/NoteTag';
 import ResourceService from '../../services/ResourceService';
 import SearchEngine from '../../services/searchengine/SearchEngine';
+const { MarkupToHtml } = require('@joplin/renderer');
 import { ResourceEntity } from '../database/types';
 
 const createFolderForPagination = async (num: number, time: number) => {
@@ -35,11 +37,10 @@ let api: Api = null;
 
 describe('services_rest_Api', function() {
 
-	beforeEach(async (done) => {
+	beforeEach(async () => {
 		api = new Api();
 		await setupDatabaseAndSynchronizer(1);
 		await switchClient(1);
-		done();
 	});
 
 	it('should ping', (async () => {
@@ -297,7 +298,11 @@ describe('services_rest_Api', function() {
 			title: 'testing 4',
 			parent_id: f.id,
 			is_todo: '1',
+			todo_due: '2',
+			todo_completed: '3',
 		}));
+		expect(response.todo_due).toBe(2);
+		expect(response.todo_completed).toBe(3);
 	}));
 
 	it('should create folders with supplied ID', (async () => {
@@ -450,6 +455,47 @@ describe('services_rest_Api', function() {
 		}));
 
 		expect(response.body).toBe('**Bold text**');
+	}));
+
+	it('should extract media urls from body', (() => {
+		const tests = [
+			{
+				language: MarkupToHtml.MARKUP_LANGUAGE_HTML,
+				body: '<div> <img src="https://example.com/img.png" /> <embed src="https://example.com/sample.pdf"/> <object data="https://example.com/file.PDF"></object> </div>',
+				result: ['https://example.com/img.png', 'https://example.com/sample.pdf', 'https://example.com/file.PDF'],
+			},
+			{
+				language: MarkupToHtml.MARKUP_LANGUAGE_MARKDOWN,
+				body: 'test text \n ![img 1](https://example.com/img1.png) [embedded_pdf](https://example.com/sample1.pdf) [embedded_pdf](https://example.com/file.PDF)',
+				result: ['https://example.com/img1.png', 'https://example.com/sample1.pdf', 'https://example.com/file.PDF'],
+			},
+			{
+				language: MarkupToHtml.MARKUP_LANGUAGE_HTML,
+				body: '<div> <embed src="https://example.com/sample"/> <embed /> <object data="https://example.com/file.pdfff"></object> <a href="https://test.com/file.pdf">Link</a> </div>',
+				result: [],
+			},
+		];
+		tests.forEach((test) => {
+			const urls = extractMediaUrls(test.language, test.body);
+			expect(urls).toEqual(test.result);
+		});
+	}));
+
+	it('should create notes with pdf embeds', (async () => {
+		let response = null;
+		const f = await Folder.save({ title: 'pdf test1' });
+
+		response = await api.route(RequestMethod.POST, 'notes', null, JSON.stringify({
+			title: 'testing PDF embeds',
+			parent_id: f.id,
+			body_html: `<div> <embed src="file://${supportDir}/welcome.pdf" type="application/pdf" /> </div>`,
+		}));
+
+		const resources = await Resource.all();
+		expect(resources.length).toBe(1);
+
+		const resource = resources[0];
+		expect(response.body.indexOf(resource.id) >= 0).toBe(true);
 	}));
 
 	it('should handle tokens', (async () => {

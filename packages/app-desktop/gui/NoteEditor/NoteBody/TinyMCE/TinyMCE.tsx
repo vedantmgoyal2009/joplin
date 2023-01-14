@@ -187,7 +187,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 				return prop_htmlToMarkdownRef.current(props.contentMarkupLanguage, editorRef.current.getContent(), props.contentOriginalCss);
 			},
 			resetScroll: () => {
-				if (editor) editor.getWin().scrollTo(0,0);
+				if (editor) editor.getWin().scrollTo(0, 0);
 			},
 			scrollTo: (options: ScrollOptions) => {
 				if (!editor) return;
@@ -280,6 +280,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 				return true;
 			},
 		};
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [editor, props.contentMarkupLanguage, props.contentOriginalCss]);
 
 	// -----------------------------------------------------------------------------------------
@@ -512,6 +513,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 		// style and re-applying it on editorReady gives our styles precedence and prevents any flashing
 		//
 		// tl;dr: editorReady is used here because the css needs to be re-applied after TinyMCE init
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [editorReady, props.themeId]);
 
 	// -----------------------------------------------------------------------------------------
@@ -620,7 +622,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 					});
 
 					editor.ui.registry.addButton('joplinInsertDateTime', {
-						tooltip: _('Insert Date Time'),
+						tooltip: _('Insert time'),
 						icon: 'insert-time',
 						onAction: function() {
 							void CommandService.instance().execute('insertDateTime');
@@ -680,6 +682,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 		};
 
 		void loadEditor();
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [scriptLoaded]);
 
 	// -----------------------------------------------------------------------------------------
@@ -829,6 +832,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 		return () => {
 			cancelled = true;
 		};
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [editor, props.markupToHtml, props.allAssets, props.content, props.resourceInfos, props.contentKey]);
 
 	useEffect(() => {
@@ -909,6 +913,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 		return () => {
 			void execOnChangeEvent();
 		};
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, []);
 
 	const onChangeHandlerTimeoutRef = useRef<any>(null);
@@ -1003,7 +1008,12 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 					const result = await markupToHtml.current(MarkupToHtml.MARKUP_LANGUAGE_MARKDOWN, pastedText, markupRenderOptions({ bodyOnly: true }));
 					editor.insertContent(result.html);
 				} else { // Paste regular text
-					const pastedHtml = event.clipboardData.getData('text/html');
+					// event.clipboardData.getData('text/html') wraps the content with <html><body></body></html>,
+					// which seems to be not supported in editor.insertContent().
+					//
+					// when pasting text with Ctrl+Shift+V, the format should be ignored.
+					// In this case, event.clopboardData.getData('text/html') returns an empty string, but the clipboard.readHTML() still returns the formatted text.
+					const pastedHtml = event.clipboardData.getData('text/html') ? clipboard.readHTML() : '';
 					if (pastedHtml) { // Handles HTML
 						const modifiedHtml = await processPastedHtml(pastedHtml);
 						editor.insertContent(modifiedHtml);
@@ -1091,6 +1101,7 @@ const TinyMCE = (props: NoteBodyEditorProps, ref: any) => {
 				console.warn('Error removing events', error);
 			}
 		};
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [props.onWillChange, props.onChange, props.contentMarkupLanguage, props.contentOriginalCss, editor]);
 
 	// -----------------------------------------------------------------------------------------

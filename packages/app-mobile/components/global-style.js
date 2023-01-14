@@ -69,6 +69,9 @@ function addExtraStyles(style) {
 
 	style.keyboardAppearance = style.appearance;
 
+	style.color5 = style.backgroundColor4;
+	style.backgroundColor5 = style.color4;
+
 	return style;
 }
 
@@ -82,7 +85,7 @@ function editorFont(fontId) {
 		[Setting.FONT_MONOSPACE]: 'monospace',
 	};
 	if (!fontId) {
-		console.warn('Editor font not set! Falling back to default font."');
+		// console.warn('Editor font not set! Falling back to default font."');
 		fontId = Setting.FONT_DEFAULT;
 	}
 	return fonts[fontId];

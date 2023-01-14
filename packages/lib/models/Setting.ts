@@ -201,6 +201,22 @@ const defaultMigrations: DefaultMigration[] = [
 	},
 ];
 
+// "UserSettingMigration" are used to migrate existing user setting to a new setting. With a way
+// to transform existing value of the old setting to value and type of the new setting.
+interface UserSettingMigration {
+	oldName: string;
+	newName: string;
+	transformValue: Function;
+}
+
+const userSettingMigration: UserSettingMigration[] = [
+	{
+		oldName: 'spellChecker.language',
+		newName: 'spellChecker.languages',
+		transformValue: (value: string) => { return [value]; },
+	},
+];
+
 class Setting extends BaseModel {
 
 	public static schemaUrl = 'https://joplinapp.org/schema/settings.json';
@@ -452,7 +468,7 @@ class Setting extends BaseModel {
 				section: 'sync',
 				show: (settings: any) => {
 					try {
-						return settings['sync.target'] == SyncTargetRegistry.nameToId('filesystem');
+						return settings['sync.target'] === SyncTargetRegistry.nameToId('filesystem');
 					} catch (error) {
 						return false;
 					}
@@ -471,7 +487,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('nextcloud');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('nextcloud');
 				},
 				public: true,
 				label: () => _('Nextcloud WebDAV URL'),
@@ -483,7 +499,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('nextcloud');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('nextcloud');
 				},
 				public: true,
 				label: () => _('Nextcloud username'),
@@ -494,7 +510,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('nextcloud');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('nextcloud');
 				},
 				public: true,
 				label: () => _('Nextcloud password'),
@@ -506,7 +522,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('webdav');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('webdav');
 				},
 				public: true,
 				label: () => _('WebDAV URL'),
@@ -518,7 +534,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('webdav');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('webdav');
 				},
 				public: true,
 				label: () => _('WebDAV username'),
@@ -529,7 +545,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('webdav');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('webdav');
 				},
 				public: true,
 				label: () => _('WebDAV password'),
@@ -542,7 +558,7 @@ class Setting extends BaseModel {
 				section: 'sync',
 				show: (settings: any) => {
 					try {
-						return settings['sync.target'] == SyncTargetRegistry.nameToId('amazon_s3');
+						return settings['sync.target'] === SyncTargetRegistry.nameToId('amazon_s3');
 					} catch (error) {
 						return false;
 					}
@@ -560,7 +576,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('amazon_s3');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('amazon_s3');
 				},
 				filter: value => {
 					return value ? value.trim() : '';
@@ -574,7 +590,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('amazon_s3');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('amazon_s3');
 				},
 				filter: value => {
 					return value ? value.trim() : '';
@@ -588,7 +604,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('amazon_s3');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('amazon_s3');
 				},
 				public: true,
 				label: () => _('S3 access key'),
@@ -599,7 +615,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('amazon_s3');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('amazon_s3');
 				},
 				public: true,
 				label: () => _('S3 secret key'),
@@ -610,7 +626,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.Bool,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('amazon_s3');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('amazon_s3');
 				},
 				public: true,
 				label: () => _('Force path style'),
@@ -621,7 +637,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('joplinServer');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('joplinServer');
 				},
 				public: true,
 				label: () => _('Joplin Server URL'),
@@ -639,7 +655,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('joplinServer');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('joplinServer');
 				},
 				public: true,
 				label: () => _('Joplin Server email'),
@@ -650,7 +666,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('joplinServer');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('joplinServer');
 				},
 				public: true,
 				label: () => _('Joplin Server password'),
@@ -678,7 +694,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('joplinCloud');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('joplinCloud');
 				},
 				public: true,
 				label: () => _('Joplin Cloud email'),
@@ -689,7 +705,7 @@ class Setting extends BaseModel {
 				type: SettingItemType.String,
 				section: 'sync',
 				show: (settings: any) => {
-					return settings['sync.target'] == SyncTargetRegistry.nameToId('joplinCloud');
+					return settings['sync.target'] === SyncTargetRegistry.nameToId('joplinCloud');
 				},
 				public: true,
 				label: () => _('Joplin Cloud password'),
@@ -864,7 +880,7 @@ class Setting extends BaseModel {
 				public: false,
 			},
 
-			showNoteCounts: { value: true, type: SettingItemType.Bool, storage: SettingStorage.File, isGlobal: true, public: false, advanced: true, appTypes: [AppType.Desktop], label: () => _('Show note counts') },
+			showNoteCounts: { value: true, type: SettingItemType.Bool, storage: SettingStorage.File, isGlobal: true, public: false, advanced: true, appTypes: [AppType.Desktop, AppType.Cli], label: () => _('Show note counts') },
 
 			layoutButtonSequence: {
 				value: Setting.LAYOUT_ALL,
@@ -1002,10 +1018,50 @@ class Setting extends BaseModel {
 				value: false,
 				type: SettingItemType.Bool,
 				section: 'note',
-				public: true,
+				public: false,
 				appTypes: [AppType.Mobile],
 				label: () => 'Opt-in to the editor beta',
 				description: () => 'This beta adds list continuation and syntax highlighting. If you find bugs, please report them in the Discourse forum.',
+				storage: SettingStorage.File,
+				isGlobal: true,
+			},
+
+			'editor.usePlainText': {
+				value: false,
+				type: SettingItemType.Bool,
+				section: 'note',
+				public: true,
+				appTypes: [AppType.Mobile],
+				label: () => 'Use the plain text editor',
+				description: () => 'The plain text editor has various issues and is no longer supported. If you are having issues with the new editor however you can revert to the old one using this setting.',
+				storage: SettingStorage.File,
+				isGlobal: true,
+			},
+
+			// Enables/disables spellcheck in the mobile markdown beta editor.
+			'editor.mobile.spellcheckEnabled': {
+				value: true,
+				type: SettingItemType.Bool,
+				section: 'note',
+				public: true,
+				appTypes: [AppType.Mobile],
+				show: (settings: any) => settings['editor.beta'],
+				label: () => 'Enable spellcheck in the beta editor',
+				storage: SettingStorage.File,
+				isGlobal: true,
+			},
+
+			// Works around a bug in which additional space is visible beneath the toolbar on some devices.
+			// See https://github.com/laurent22/joplin/pull/6823
+			'editor.mobile.removeSpaceBelowToolbar': {
+				value: false,
+				type: SettingItemType.Bool,
+				section: 'note',
+				public: true,
+				appTypes: [AppType.Mobile],
+				show: (settings: any) => settings['editor.mobile.removeSpaceBelowToolbar'],
+				label: () => 'Remove extra space below the markdown toolbar',
+				description: () => 'Works around bug on some devices where the markdown toolbar does not touch the bottom of the screen.',
 				storage: SettingStorage.File,
 				isGlobal: true,
 			},
@@ -1138,7 +1194,19 @@ class Setting extends BaseModel {
 			// Deprecated in favour of windowContentZoomFactor
 			'style.zoom': { value: 100, type: SettingItemType.Int, public: false, storage: SettingStorage.File, isGlobal: true, appTypes: [AppType.Desktop], section: 'appearance', label: () => '', minimum: 50, maximum: 500, step: 10 },
 
-			'style.editor.fontSize': { value: 15, type: SettingItemType.Int, public: true, storage: SettingStorage.File, isGlobal: true, appTypes: [AppType.Desktop], section: 'appearance', label: () => _('Editor font size'), minimum: 4, maximum: 50, step: 1 },
+			'style.editor.fontSize': {
+				value: 15,
+				type: SettingItemType.Int,
+				public: true,
+				storage: SettingStorage.File,
+				isGlobal: true,
+				appTypes: [AppType.Desktop, AppType.Mobile],
+				section: 'appearance',
+				label: () => _('Editor font size'),
+				minimum: 4,
+				maximum: 50,
+				step: 1,
+			},
 			'style.editor.fontFamily':
 				(mobilePlatform) ?
 					({
@@ -1191,7 +1259,7 @@ class Setting extends BaseModel {
 				isGlobal: true,
 			},
 
-			'style.editor.contentMaxWidth': { value: 0, type: SettingItemType.Int, public: true, storage: SettingStorage.File, isGlobal: true,appTypes: [AppType.Desktop], section: 'appearance', label: () => _('Editor maximum width'), description: () => _('Set it to 0 to make it take the complete available space. Recommended width is 600.') },
+			'style.editor.contentMaxWidth': { value: 0, type: SettingItemType.Int, public: true, storage: SettingStorage.File, isGlobal: true, appTypes: [AppType.Desktop], section: 'appearance', label: () => _('Editor maximum width'), description: () => _('Set it to 0 to make it take the complete available space. Recommended width is 600.') },
 
 			'ui.layout': { value: {}, type: SettingItemType.Object, storage: SettingStorage.File, isGlobal: true, public: false, appTypes: [AppType.Desktop] },
 
@@ -1384,7 +1452,38 @@ class Setting extends BaseModel {
 				label: () => _('Ignore TLS certificate errors'),
 				storage: SettingStorage.File,
 			},
-
+			'net.proxyEnabled': {
+				value: false,
+				type: SettingItemType.Bool,
+				advanced: true,
+				section: 'sync',
+				isGlobal: true,
+				public: true,
+				label: () => _('Proxy enabled'),
+				storage: SettingStorage.File,
+			},
+			'net.proxyUrl': {
+				value: '',
+				type: SettingItemType.String,
+				advanced: true,
+				section: 'sync',
+				isGlobal: true,
+				public: true,
+				label: () => _('Proxy URL'),
+				description: () => _('For example "%s"', 'http://my.proxy.com:80'),
+				storage: SettingStorage.File,
+			},
+			'net.proxyTimeout': {
+				value: 1,
+				type: SettingItemType.Int,
+				maximum: 60,
+				advanced: true,
+				section: 'sync',
+				isGlobal: true,
+				public: true,
+				label: () => _('Proxy timeout (seconds)'),
+				storage: SettingStorage.File,
+			},
 			'sync.wipeOutFailSafe': {
 				value: true,
 				type: SettingItemType.Bool,
@@ -1430,7 +1529,8 @@ class Setting extends BaseModel {
 			'camera.ratio': { value: '4:3', type: SettingItemType.String, public: false, appTypes: [AppType.Mobile] },
 
 			'spellChecker.enabled': { value: true, type: SettingItemType.Bool, isGlobal: true, storage: SettingStorage.File, public: false },
-			'spellChecker.language': { value: '', type: SettingItemType.String, isGlobal: true, storage: SettingStorage.File, public: false },
+			'spellChecker.language': { value: '', type: SettingItemType.String, isGlobal: true, storage: SettingStorage.File, public: false }, // Depreciated in favour of spellChecker.languages.
+			'spellChecker.languages': { value: [], type: SettingItemType.Array, isGlobal: true, storage: SettingStorage.File, public: false },
 
 			windowContentZoomFactor: {
 				value: 100,
@@ -1516,6 +1616,35 @@ class Setting extends BaseModel {
 				public: false,
 			},
 
+			installedDefaultPlugins: {
+				value: [],
+				type: SettingItemType.Array,
+				public: false,
+				storage: SettingStorage.Database,
+			},
+
+			'security.biometricsEnabled': {
+				value: false,
+				type: SettingItemType.Bool,
+				label: () => _('Use biometrics to secure access to the app'),
+				public: true,
+				appTypes: [AppType.Mobile],
+			},
+
+			'security.biometricsSupportedSensors': {
+				value: '',
+				type: SettingItemType.String,
+				public: false,
+				appTypes: [AppType.Mobile],
+			},
+
+			'security.biometricsInitialPromptDone': {
+				value: false,
+				type: SettingItemType.Bool,
+				public: false,
+				appTypes: [AppType.Mobile],
+			},
+
 			// 'featureFlag.syncAccurateTimestamps': {
 			// 	value: false,
 			// 	type: SettingItemType.Bool,
@@ -1576,6 +1705,16 @@ class Setting extends BaseModel {
 		}
 
 		this.setValue('lastSettingDefaultMigration', defaultMigrations.length - 1);
+	}
+
+	public static applyUserSettingMigration() {
+		// Function to translate existing user settings to new setting.
+		userSettingMigration.forEach(userMigration => {
+			if (!this.isSet(userMigration.newName) && this.isSet(userMigration.oldName)) {
+				this.setValue(userMigration.newName, userMigration.transformValue(this.value(userMigration.oldName)));
+				logger.info(`Migrating ${userMigration.oldName} to ${userMigration.newName}`);
+			}
+		});
 	}
 
 	public static featureFlagKeys(appType: AppType): string[] {
@@ -1639,7 +1778,7 @@ class Setting extends BaseModel {
 	}
 
 	public static isSet(key: string) {
-		return this.cache_.find(d => d.key === key);
+		return !!this.cache_.find(d => d.key === key);
 	}
 
 	static keyDescription(key: string, appType: AppType = null) {
@@ -1826,7 +1965,7 @@ class Setting extends BaseModel {
 
 		for (let i = 0; i < this.cache_.length; i++) {
 			const c = this.cache_[i];
-			if (c.key == key) {
+			if (c.key === key) {
 				const md = this.settingMetadata(key);
 
 				if (md.isEnum === true) {
@@ -1882,6 +2021,17 @@ class Setting extends BaseModel {
 
 	static toggle(key: string) {
 		return this.setValue(key, !this.value(key));
+	}
+
+	// this method checks if the 'value' passed is present in the Setting "Array"
+	// If yes, then it just returns 'true'. If its not present then, it will
+	// update it and return 'false'
+	public static setArrayValue(settingName: string, value: string): boolean {
+		const settingValue: Array<any> = this.value(settingName);
+		if (settingValue.includes(value)) return true;
+		settingValue.push(value);
+		this.setValue(settingName, settingValue);
+		return false;
 	}
 
 	static objectValue(settingKey: string, objectKey: string, defaultValue: any = null) {
@@ -1943,11 +2093,11 @@ class Setting extends BaseModel {
 	static valueToString(key: string, value: any) {
 		const md = this.settingMetadata(key);
 		value = this.formatValue(key, value);
-		if (md.type == SettingItemType.Int) return value.toFixed(0);
-		if (md.type == SettingItemType.Bool) return value ? '1' : '0';
-		if (md.type == SettingItemType.Array) return value ? JSON.stringify(value) : '[]';
-		if (md.type == SettingItemType.Object) return value ? JSON.stringify(value) : '{}';
-		if (md.type == SettingItemType.String) return value ? `${value}` : '';
+		if (md.type === SettingItemType.Int) return value.toFixed(0);
+		if (md.type === SettingItemType.Bool) return value ? '1' : '0';
+		if (md.type === SettingItemType.Array) return value ? JSON.stringify(value) : '[]';
+		if (md.type === SettingItemType.Object) return value ? JSON.stringify(value) : '{}';
+		if (md.type === SettingItemType.String) return value ? `${value}` : '';
 
 		throw new Error(`Unhandled value type: ${md.type}`);
 	}
@@ -1960,9 +2110,9 @@ class Setting extends BaseModel {
 	static formatValue(key: string, value: any) {
 		const md = this.settingMetadata(key);
 
-		if (md.type == SettingItemType.Int) return !value ? 0 : Math.floor(Number(value));
+		if (md.type === SettingItemType.Int) return !value ? 0 : Math.floor(Number(value));
 
-		if (md.type == SettingItemType.Bool) {
+		if (md.type === SettingItemType.Bool) {
 			if (typeof value === 'string') {
 				value = value.toLowerCase();
 				if (value === 'true') return true;
@@ -2009,14 +2159,14 @@ class Setting extends BaseModel {
 		if (key in this.constants_) {
 			const v = (this.constants_ as any)[key];
 			const output = typeof v === 'function' ? v() : v;
-			if (output == 'SET_ME') throw new Error(`SET_ME constant has not been set: ${key}`);
+			if (output === 'SET_ME') throw new Error(`SET_ME constant has not been set: ${key}`);
 			return output;
 		}
 
 		if (!this.cache_) throw new Error('Settings have not been initialized!');
 
 		for (let i = 0; i < this.cache_.length; i++) {
-			if (this.cache_[i].key == key) {
+			if (this.cache_[i].key === key) {
 				return copyIfNeeded(this.cache_[i].value);
 			}
 		}
@@ -2049,7 +2199,7 @@ class Setting extends BaseModel {
 	static enumOptionLabel(key: string, value: any) {
 		const options = this.enumOptions(key);
 		for (const n in options) {
-			if (n == value) return options[n];
+			if (n === value) return options[n];
 		}
 		return '';
 	}

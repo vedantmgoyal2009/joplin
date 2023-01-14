@@ -12,6 +12,7 @@ import useWindowCommandHandler from './utils/useWindowCommandHandler';
 import useDropHandler from './utils/useDropHandler';
 import useMarkupToHtml from './utils/useMarkupToHtml';
 import useFormNote, { OnLoadEvent } from './utils/useFormNote';
+import useEffectiveNoteId from './utils/useEffectiveNoteId';
 import useFolder from './utils/useFolder';
 import styles_ from './styles';
 import { NoteEditorProps, FormNote, ScrollOptions, ScrollOptionTypes, OnChangeEvent, NoteBodyEditorProps, AllAssetsOptions } from './utils/types';
@@ -59,15 +60,18 @@ function NoteEditor(props: NoteEditorProps) {
 	const formNote_beforeLoad = useCallback(async (event: OnLoadEvent) => {
 		await saveNoteIfWillChange(event.formNote);
 		setShowRevisions(false);
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, []);
 
 	const formNote_afterLoad = useCallback(async () => {
 		setTitleHasBeenManuallyChanged(false);
 	}, []);
 
+	const effectiveNoteId = useEffectiveNoteId(props);
+
 	const { formNote, setFormNote, isNewNote, resourceInfos } = useFormNote({
 		syncStarted: props.syncStarted,
-		noteId: props.noteId,
+		noteId: effectiveNoteId,
 		isProvisional: props.isProvisional,
 		titleInputRef: titleInputRef,
 		editorRef: editorRef,
@@ -90,7 +94,7 @@ function NoteEditor(props: NoteEditorProps) {
 		showLocalSearch,
 		setShowLocalSearch,
 		searchMarkers: localSearchMarkerOptions,
-	} = useNoteSearchBar();
+	} = useNoteSearchBar({ noteSearchBarRef });
 
 	// If the note has been modified in another editor, wait for it to be saved
 	// before loading it in this editor.
@@ -177,6 +181,7 @@ function NoteEditor(props: NoteEditorProps) {
 				id: formNote.id,
 			});
 		}
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [props.isProvisional, formNote.id]);
 
 	const previousNoteId = usePrevious(formNote.id);
@@ -190,10 +195,11 @@ function NoteEditor(props: NoteEditorProps) {
 
 		setScrollWhenReady({
 			type: props.selectedNoteHash ? ScrollOptionTypes.Hash : ScrollOptionTypes.Percent,
-			value: props.selectedNoteHash ? props.selectedNoteHash : props.lastEditorScrollPercents[props.noteId] || 0,
+			value: props.selectedNoteHash ? props.selectedNoteHash : props.lastEditorScrollPercents[formNote.id] || 0,
 		});
 
 		void ResourceEditWatcher.instance().stopWatchingAll();
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [formNote.id, previousNoteId]);
 
 	const onFieldChange = useCallback((field: string, value: any, changeId = 0) => {
@@ -238,6 +244,7 @@ function NoteEditor(props: NoteEditorProps) {
 			setFormNote(newNote);
 			scheduleSaveNote(newNote);
 		}
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [handleProvisionalFlag, formNote, isNewNote, titleHasBeenManuallyChanged]);
 
 	useWindowCommandHandler({
@@ -288,6 +295,7 @@ function NoteEditor(props: NoteEditorProps) {
 			id: formNote.id,
 			status: 'saving',
 		});
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [formNote, handleProvisionalFlag]);
 
 	const onMessage = useMessageHandler(scrollWhenReady, setScrollWhenReady, editorRef, setLocalSearchResultCount, props.dispatch, formNote);
@@ -302,6 +310,7 @@ function NoteEditor(props: NoteEditorProps) {
 
 			setFormNote(newFormNote);
 		}
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [formNote]);
 
 	const onNotePropertyChange = useCallback((event) => {
@@ -317,6 +326,7 @@ function NoteEditor(props: NoteEditorProps) {
 
 			return newFormNote;
 		});
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, []);
 
 	useEffect(() => {
@@ -350,6 +360,7 @@ function NoteEditor(props: NoteEditorProps) {
 			noteId: formNoteRef.current.id,
 			percent: event.percent,
 		});
+		// eslint-disable-next-line @seiyab/react-hooks/exhaustive-deps -- Old code before rule was applied
 	}, [props.dispatch, formNote]);
 
 	function renderNoNotes(rootStyle: any) {
@@ -413,6 +424,9 @@ function NoteEditor(props: NoteEditorProps) {
 		fontSize: Setting.value('style.editor.fontSize'),
 		contentMaxWidth: props.contentMaxWidth,
 		isSafeMode: props.isSafeMode,
+		// We need it to identify the context for which media is rendered.
+		// It is currently used to remember pdf scroll position for each attacments of each note uniquely.
+		noteId: props.noteId,
 	};
 
 	let editor = null;
@@ -484,6 +498,7 @@ function NoteEditor(props: NoteEditorProps) {
 		return (
 			<NoteSearchBar
 				ref={noteSearchBarRef}
+				themeId={props.themeId}
 				style={{
 					display: 'flex',
 					height: 35,
@@ -538,7 +553,7 @@ function NoteEditor(props: NoteEditorProps) {
 		}
 	}
 
-	if (formNote.encryption_applied || !formNote.id || !props.noteId) {
+	if (formNote.encryption_applied || !formNote.id || !effectiveNoteId) {
 		return renderNoNotes(styles.root);
 	}
 
@@ -585,7 +600,6 @@ const mapStateToProps = (state: AppState) => {
 	return {
 		noteId: noteId,
 		notes: state.notes,
-		folders: state.folders,
 		selectedNoteIds: state.selectedNoteIds,
 		selectedFolderId: state.selectedFolderId,
 		isProvisional: state.provisionalNoteIds.includes(noteId),

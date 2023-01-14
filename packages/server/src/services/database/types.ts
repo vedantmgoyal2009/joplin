@@ -111,6 +111,20 @@ interface DatabaseTables {
 	[key: string]: DatabaseTable;
 }
 
+export enum TaskId {
+	// Don't re-use any of these numbers, always add to it, as the ID is used in
+	// the database
+	DeleteExpiredTokens = 1,
+	UpdateTotalSizes = 2,
+	HandleOversizedAccounts = 3,
+	HandleBetaUserEmails = 4,
+	HandleFailedPaymentSubscriptions = 5,
+	DeleteExpiredSessions = 6,
+	CompressOldChanges = 7,
+	ProcessUserDeletions = 8,
+	AutoAddDisabledAccountsForDeletion = 9,
+}
+
 // AUTO-GENERATED-TYPES
 // Auto-generated using `yarn run generate-types`
 export interface Session extends WithDates, WithUuid {
@@ -182,6 +196,7 @@ export interface Share extends WithDates, WithUuid {
 	folder_id?: Uuid;
 	note_id?: Uuid;
 	master_key_id?: Uuid;
+	recursive?: number;
 }
 
 export interface Change extends WithDates, WithUuid {
@@ -299,6 +314,13 @@ export interface BackupItem extends WithCreatedDate {
 	content?: Buffer;
 }
 
+export interface TaskState extends WithDates {
+	id?: number;
+	task_id?: TaskId;
+	running?: number;
+	enabled?: number;
+}
+
 export const databaseSchema: DatabaseTables = {
 	sessions: {
 		id: { type: 'string' },
@@ -378,6 +400,7 @@ export const databaseSchema: DatabaseTables = {
 		folder_id: { type: 'string' },
 		note_id: { type: 'string' },
 		master_key_id: { type: 'string' },
+		recursive: { type: 'number' },
 	},
 	changes: {
 		counter: { type: 'number' },
@@ -500,6 +523,14 @@ export const databaseSchema: DatabaseTables = {
 		key: { type: 'string' },
 		user_id: { type: 'string' },
 		content: { type: 'any' },
+		created_time: { type: 'string' },
+	},
+	task_states: {
+		id: { type: 'number' },
+		task_id: { type: 'number' },
+		running: { type: 'number' },
+		enabled: { type: 'number' },
+		updated_time: { type: 'string' },
 		created_time: { type: 'string' },
 	},
 };

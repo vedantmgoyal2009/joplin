@@ -9,9 +9,9 @@ const Tag = require('@joplin/lib/models/Tag').default;
 const Note = require('@joplin/lib/models/Note').default;
 const Setting = require('@joplin/lib/models/Setting').default;
 const { themeStyle } = require('../global-style.js');
-const { ScreenHeader } = require('../screen-header.js');
+const { ScreenHeader } = require('../ScreenHeader');
 const { _ } = require('@joplin/lib/locale');
-const { ActionButton } = require('../action-button.js');
+const ActionButton = require('../ActionButton').default;
 const { dialogs } = require('../../utils/dialogs.js');
 const DialogBox = require('react-native-dialogbox').default;
 const { BaseScreenComponent } = require('../base-screen.js');
@@ -109,7 +109,7 @@ class NotesScreenComponent extends BaseScreenComponent {
 	}
 
 	async componentDidUpdate(prevProps) {
-		if (prevProps.notesOrder !== this.props.notesOrder || prevProps.selectedFolderId != this.props.selectedFolderId || prevProps.selectedTagId != this.props.selectedTagId || prevProps.selectedSmartFilterId != this.props.selectedSmartFilterId || prevProps.notesParentType != this.props.notesParentType) {
+		if (prevProps.notesOrder !== this.props.notesOrder || prevProps.selectedFolderId !== this.props.selectedFolderId || prevProps.selectedTagId !== this.props.selectedTagId || prevProps.selectedSmartFilterId !== this.props.selectedSmartFilterId || prevProps.notesParentType !== this.props.notesParentType) {
 			await this.refreshNotes(this.props);
 		}
 	}
@@ -132,7 +132,7 @@ class NotesScreenComponent extends BaseScreenComponent {
 			parentId: parent.id,
 		});
 
-		if (source == props.notesSource) return;
+		if (source === props.notesSource) return;
 
 		let notes = [];
 		if (props.notesParentType === 'Folder') {
@@ -151,10 +151,12 @@ class NotesScreenComponent extends BaseScreenComponent {
 	}
 
 	deleteFolder_onPress(folderId) {
+		// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 		dialogs.confirm(this, _('Delete notebook? All notes and sub-notebooks within this notebook will also be deleted.')).then(ok => {
 			if (!ok) return;
 
 			Folder.delete(folderId)
+			// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 				.then(() => {
 					this.props.dispatch({
 						type: 'NAV_GO',
@@ -162,6 +164,7 @@ class NotesScreenComponent extends BaseScreenComponent {
 						smartFilterId: 'c3176726992c11e9ac940492261af972',
 					});
 				})
+			// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 				.catch(error => {
 					alert(error.message);
 				});
@@ -176,15 +179,28 @@ class NotesScreenComponent extends BaseScreenComponent {
 		});
 	}
 
+	newNoteNavigate = async (folderId, isTodo) => {
+		const newNote = await Note.save({
+			parent_id: folderId,
+			is_todo: isTodo ? 1 : 0,
+		}, { provisional: true });
+
+		this.props.dispatch({
+			type: 'NAV_GO',
+			routeName: 'Note',
+			noteId: newNote.id,
+		});
+	};
+
 	parentItem(props = null) {
 		if (!props) props = this.props;
 
 		let output = null;
-		if (props.notesParentType == 'Folder') {
+		if (props.notesParentType === 'Folder') {
 			output = Folder.byId(props.folders, props.selectedFolderId);
-		} else if (props.notesParentType == 'Tag') {
+		} else if (props.notesParentType === 'Tag') {
 			output = Tag.byId(props.tags, props.selectedTagId);
-		} else if (props.notesParentType == 'SmartFilter') {
+		} else if (props.notesParentType === 'SmartFilter') {
 			output = { id: this.props.selectedSmartFilterId, title: _('All notes') };
 		} else {
 			return null;
@@ -230,12 +246,40 @@ class NotesScreenComponent extends BaseScreenComponent {
 		const icon = Folder.unserializeIcon(parent.icon);
 		const iconString = icon ? `${icon.emoji} ` : '';
 
-		let buttonFolderId = this.props.selectedFolderId != Folder.conflictFolderId() ? this.props.selectedFolderId : null;
+		let buttonFolderId = this.props.selectedFolderId !== Folder.conflictFolderId() ? this.props.selectedFolderId : null;
 		if (!buttonFolderId) buttonFolderId = this.props.activeFolderId;
 
 		const addFolderNoteButtons = !!buttonFolderId;
 		const thisComp = this;
-		const actionButtonComp = this.props.noteSelectionEnabled || !this.props.visible ? null : <ActionButton addFolderNoteButtons={addFolderNoteButtons} parentFolderId={buttonFolderId}></ActionButton>;
+
+		const makeActionButtonComp = () => {
+			if (addFolderNoteButtons && this.props.folders.length > 0) {
+				const buttons = [];
+				buttons.push({
+					label: _('New to-do'),
+					onPress: () => {
+						const isTodo = true;
+						this.newNoteNavigate(buttonFolderId, isTodo);
+					},
+					color: '#9b59b6',
+					icon: 'md-checkbox-outline',
+				});
+
+				buttons.push({
+					label: _('New note'),
+					onPress: () => {
+						const isTodo = false;
+						this.newNoteNavigate(buttonFolderId, isTodo);
+					},
+					color: '#9b59b6',
+					icon: 'md-document',
+				});
+				return <ActionButton buttons={buttons}/>;
+			}
+			return null;
+		};
+
+		const actionButtonComp = this.props.noteSelectionEnabled || !this.props.visible ? null : makeActionButtonComp();
 
 		return (
 			<View style={rootStyle}>

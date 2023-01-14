@@ -6,7 +6,7 @@ import ResourceFetcher from '@joplin/lib/services/ResourceFetcher';
 import Synchronizer from '@joplin/lib/Synchronizer';
 import { masterKeysWithoutPassword } from '@joplin/lib/services/e2ee/utils';
 import { appTypeToLockType } from '@joplin/lib/services/synchronizer/LockHandler';
-const { BaseCommand } = require('./base-command.js');
+const BaseCommand = require('./base-command').default;
 const { app } = require('./app.js');
 const { OneDriveApiNodeUtils } = require('@joplin/lib/onedrive-api-node-utils.js');
 const { reg } = require('@joplin/lib/registry.js');
@@ -37,17 +37,8 @@ class Command extends BaseCommand {
 		];
 	}
 
-	static lockFile(filePath: string): Promise<Function> {
-		return new Promise((resolve, reject) => {
-			locker.lock(filePath, { stale: 1000 * 60 * 5 }, (error: any, release: any) => {
-				if (error) {
-					reject(error);
-					return;
-				}
-
-				resolve(release);
-			});
-		});
+	static async lockFile(filePath: string): Promise<Function> {
+		return locker.lock(filePath, { stale: 1000 * 60 * 5 });
 	}
 
 	static isLocked(filePath: string) {
@@ -133,7 +124,7 @@ class Command extends BaseCommand {
 
 				this.releaseLockFn_ = await Command.lockFile(lockFilePath);
 			} catch (error) {
-				if (error.code == 'ELOCKED') {
+				if (error.code === 'ELOCKED') {
 					const msg = _('Lock file is already being hold. If you know that no synchronisation is taking place, you may delete the lock file at "%s" and resume the operation.', error.file);
 					this.stdout(msg);
 					return;
@@ -222,7 +213,7 @@ class Command extends BaseCommand {
 				const newContext = await sync.start(options);
 				Setting.setValue(contextKey, JSON.stringify(newContext));
 			} catch (error) {
-				if (error.code == 'alreadyStarted') {
+				if (error.code === 'alreadyStarted') {
 					this.stdout(error.message);
 				} else {
 					throw error;

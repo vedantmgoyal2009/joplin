@@ -1,9 +1,10 @@
 import { Models } from '../models/factory';
-import TaskService, { Task, TaskId, taskIdToLabel } from '../services/TaskService';
+import { TaskId } from '../services/database/types';
+import TaskService, { Task, taskIdToLabel } from '../services/TaskService';
 import { Services } from '../services/types';
 import { Config, Env } from './types';
 
-export default function(env: Env, models: Models, config: Config, services: Services): TaskService {
+export default async function(env: Env, models: Models, config: Config, services: Services): Promise<TaskService> {
 	const taskService = new TaskService(env, models, config, services);
 
 	let tasks: Task[] = [
@@ -31,7 +32,7 @@ export default function(env: Env, models: Models, config: Config, services: Serv
 		{
 			id: TaskId.ProcessUserDeletions,
 			description: taskIdToLabel(TaskId.ProcessUserDeletions),
-			schedule: '0 */6 * * *',
+			schedule: '10 * * * *',
 			run: (_models: Models, services: Services) => services.userDeletion.runMaintenance(),
 		},
 
@@ -80,7 +81,7 @@ export default function(env: Env, models: Models, config: Config, services: Serv
 		]);
 	}
 
-	taskService.registerTasks(tasks);
+	await taskService.registerTasks(tasks);
 
 	return taskService;
 }

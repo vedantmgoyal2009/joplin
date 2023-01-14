@@ -99,6 +99,22 @@
 		{
 			"name": "fourstepper",
 			"id": "49439044"
+		},
+		{
+			"name": "Polymathic-Company",
+			"id": "77214738"
+		},
+		{
+			"name": "sif",
+			"id": "327998"
+		},
+		{
+			"name": "skyrunner15",
+			"id": "54626606"
+		},
+		{
+			"name": "jknowles",
+			"id": "1310474"
 		}
 	],
 	"orgs": [
@@ -122,6 +138,11 @@
 			"url": "https://residence-greece.com/",
 			"title": "Greece Golden Visa",
 			"imageName": "ResidenceGreece.jpg"
+		},
+		{
+			"url": "https://grundstueckspreise.info/",
+			"title": "SP Software GmbH",
+			"imageName": "Grundstueckspreise.png"
 		}
 	],
 	"orgsOld": []

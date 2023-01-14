@@ -6,26 +6,26 @@ const { defaultState, MAX_HISTORY } = require('./reducer');
 function initTestState(folders, selectedFolderIndex, notes, selectedNoteIndexes, tags = null, selectedTagIndex = null) {
 	let state = defaultState;
 
-	if (selectedFolderIndex != null) {
+	if (selectedFolderIndex !== null) {
 		state = reducer(state, { type: 'FOLDER_SELECT', id: folders[selectedFolderIndex].id });
 	}
-	if (folders != null) {
+	if (folders !== null) {
 		state = reducer(state, { type: 'FOLDER_UPDATE_ALL', items: folders });
 	}
-	if (notes != null) {
+	if (notes !== null) {
 		state = reducer(state, { type: 'NOTE_UPDATE_ALL', notes: notes, noteSource: 'test' });
 	}
-	if (selectedNoteIndexes != null) {
+	if (selectedNoteIndexes !== null) {
 		const selectedIds = [];
 		for (let i = 0; i < selectedNoteIndexes.length; i++) {
 			selectedIds.push(notes[selectedNoteIndexes[i]].id);
 		}
 		state = reducer(state, { type: 'NOTE_SELECT', ids: selectedIds });
 	}
-	if (tags != null) {
+	if (tags !== null) {
 		state = reducer(state, { type: 'TAG_UPDATE_ALL', items: tags });
 	}
-	if (selectedTagIndex != null) {
+	if (selectedTagIndex !== null) {
 		state = reducer(state, { type: 'TAG_SELECT', id: tags[selectedTagIndex].id });
 	}
 
@@ -33,7 +33,7 @@ function initTestState(folders, selectedFolderIndex, notes, selectedNoteIndexes,
 }
 
 function goToNote(notes, selectedNoteIndexes, state) {
-	if (selectedNoteIndexes != null) {
+	if (selectedNoteIndexes !== null) {
 		const selectedIds = [];
 		for (let i = 0; i < selectedNoteIndexes.length; i++) {
 			selectedIds.push(notes[selectedNoteIndexes[i]].id);
@@ -74,7 +74,7 @@ function createExpectedState(items, keepIndexes, selectedIndexes) {
 function getIds(items, indexes = null) {
 	const ids = [];
 	for (let i = 0; i < items.length; i++) {
-		if (indexes == null || i in indexes) {
+		if (!indexes || i in indexes) {
 			ids.push(items[i].id);
 		}
 	}
@@ -83,11 +83,10 @@ function getIds(items, indexes = null) {
 
 describe('reducer', function() {
 
-	beforeEach(async (done) => {
+	beforeEach(async () => {
 		await setupDatabaseAndSynchronizer(1);
 		await switchClient(1);
 
-		done();
 	});
 
 	// tests for NOTE_DELETE
@@ -104,7 +103,7 @@ describe('reducer', function() {
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[2].id });
 
 		// expect that the third note is missing, and the 4th note is now selected
-		const expected = createExpectedState(notes, [0,1,3,4], [3]);
+		const expected = createExpectedState(notes, [0, 1, 3, 4], [3]);
 
 		// check the ids of all the remaining notes
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
@@ -120,7 +119,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[0].id });
 
-		const expected = createExpectedState(notes, [1,2,3,4], [1]);
+		const expected = createExpectedState(notes, [1, 2, 3, 4], [1]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -148,7 +147,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[4].id });
 
-		const expected = createExpectedState(notes, [0,1,2,3], [3]);
+		const expected = createExpectedState(notes, [0, 1, 2, 3], [3]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -162,7 +161,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[1].id });
 
-		const expected = createExpectedState(notes, [0,2,3,4], [3]);
+		const expected = createExpectedState(notes, [0, 2, 3, 4], [3]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -176,7 +175,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[3].id });
 
-		const expected = createExpectedState(notes, [0,1,2,4], [1]);
+		const expected = createExpectedState(notes, [0, 1, 2, 4], [1]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -185,13 +184,13 @@ describe('reducer', function() {
 	it('should delete selected notes', (async () => {
 		const folders = await createNTestFolders(1);
 		const notes = await createNTestNotes(5, folders[0]);
-		let state = initTestState(folders, 0, notes, [1,2]);
+		let state = initTestState(folders, 0, notes, [1, 2]);
 
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[1].id });
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[2].id });
 
-		const expected = createExpectedState(notes, [0,3,4], [3]);
+		const expected = createExpectedState(notes, [0, 3, 4], [3]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -200,12 +199,12 @@ describe('reducer', function() {
 	it('should delete note when a notes below it are selected', (async () => {
 		const folders = await createNTestFolders(1);
 		const notes = await createNTestNotes(5, folders[0]);
-		let state = initTestState(folders, 0, notes, [3,4]);
+		let state = initTestState(folders, 0, notes, [3, 4]);
 
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[1].id });
 
-		const expected = createExpectedState(notes, [0,2,3,4], [3,4]);
+		const expected = createExpectedState(notes, [0, 2, 3, 4], [3, 4]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -214,12 +213,12 @@ describe('reducer', function() {
 	it('should delete note when a notes above it are selected', (async () => {
 		const folders = await createNTestFolders(1);
 		const notes = await createNTestNotes(5, folders[0]);
-		let state = initTestState(folders, 0, notes, [1,2]);
+		let state = initTestState(folders, 0, notes, [1, 2]);
 
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[3].id });
 
-		const expected = createExpectedState(notes, [0,1,2,4], [1,2]);
+		const expected = createExpectedState(notes, [0, 1, 2, 4], [1, 2]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -228,13 +227,13 @@ describe('reducer', function() {
 	it('should delete notes at end', (async () => {
 		const folders = await createNTestFolders(1);
 		const notes = await createNTestNotes(5, folders[0]);
-		let state = initTestState(folders, 0, notes, [3,4]);
+		let state = initTestState(folders, 0, notes, [3, 4]);
 
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[3].id });
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[4].id });
 
-		const expected = createExpectedState(notes, [0,1,2], [2]);
+		const expected = createExpectedState(notes, [0, 1, 2], [2]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -243,14 +242,14 @@ describe('reducer', function() {
 	it('should delete notes when non-contiguous selection', (async () => {
 		const folders = await createNTestFolders(1);
 		const notes = await createNTestNotes(5, folders[0]);
-		let state = initTestState(folders, 0, notes, [0,2,4]);
+		let state = initTestState(folders, 0, notes, [0, 2, 4]);
 
 		// test action
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[0].id });
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[2].id });
 		state = reducer(state, { type: 'NOTE_DELETE', id: notes[4].id });
 
-		const expected = createExpectedState(notes, [1,3], [1]);
+		const expected = createExpectedState(notes, [1, 3], [1]);
 
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
@@ -265,7 +264,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'FOLDER_DELETE', id: folders[2].id });
 
-		const expected = createExpectedState(folders, [0,1,3,4], [3]);
+		const expected = createExpectedState(folders, [0, 1, 3, 4], [3]);
 
 		expect(getIds(state.folders)).toEqual(getIds(expected.items));
 		expect(state.selectedFolderId).toEqual(expected.selectedIds[0]);
@@ -279,7 +278,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'FOLDER_DELETE', id: folders[2].id });
 
-		const expected = createExpectedState(folders, [0,1,3,4], [1]);
+		const expected = createExpectedState(folders, [0, 1, 3, 4], [1]);
 
 		expect(getIds(state.folders)).toEqual(getIds(expected.items));
 		expect(state.selectedFolderId).toEqual(expected.selectedIds[0]);
@@ -293,7 +292,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'FOLDER_DELETE', id: folders[2].id });
 
-		const expected = createExpectedState(folders, [0,1,3,4], [4]);
+		const expected = createExpectedState(folders, [0, 1, 3, 4], [4]);
 
 		expect(getIds(state.folders)).toEqual(getIds(expected.items));
 		expect(state.selectedFolderId).toEqual(expected.selectedIds[0]);
@@ -307,7 +306,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'TAG_DELETE', id: tags[2].id });
 
-		const expected = createExpectedState(tags, [0,1,3,4], [3]);
+		const expected = createExpectedState(tags, [0, 1, 3, 4], [3]);
 
 		expect(getIds(state.tags)).toEqual(getIds(expected.items));
 		expect(state.selectedTagId).toEqual(expected.selectedIds[0]);
@@ -320,7 +319,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'TAG_DELETE', id: tags[4].id });
 
-		const expected = createExpectedState(tags, [0,1,2,3], [2]);
+		const expected = createExpectedState(tags, [0, 1, 2, 3], [2]);
 
 		expect(getIds(state.tags)).toEqual(getIds(expected.items));
 		expect(state.selectedTagId).toEqual(expected.selectedIds[0]);
@@ -333,7 +332,7 @@ describe('reducer', function() {
 		// test action
 		state = reducer(state, { type: 'TAG_DELETE', id: tags[0].id });
 
-		const expected = createExpectedState(tags, [1,2,3,4], [2]);
+		const expected = createExpectedState(tags, [1, 2, 3, 4], [2]);
 
 		expect(getIds(state.tags)).toEqual(getIds(expected.items));
 		expect(state.selectedTagId).toEqual(expected.selectedIds[0]);
@@ -346,18 +345,18 @@ describe('reducer', function() {
 			notes.push(...await createNTestNotes(3, folders[i]));
 		}
 
-		let state = initTestState(folders, 0, notes.slice(0,3), [0]);
+		let state = initTestState(folders, 0, notes.slice(0, 3), [0]);
 
-		let expected = createExpectedState(notes, [0,1,2], [0]);
+		let expected = createExpectedState(notes, [0, 1, 2], [0]);
 
 		expect(state.notes.length).toEqual(expected.items.length);
-		expect(getIds(state.notes.slice(0,4))).toEqual(getIds(expected.items));
+		expect(getIds(state.notes.slice(0, 4))).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
 
 		// test action
 		state = reducer(state, { type: 'NOTE_SELECT_ALL' });
 
-		expected = createExpectedState(notes.slice(0,3), [0,1,2], [0,1,2]);
+		expected = createExpectedState(notes.slice(0, 3), [0, 1, 2], [0, 1, 2]);
 		expect(getIds(state.notes)).toEqual(getIds(expected.items));
 		expect(state.selectedNoteIds).toEqual(expected.selectedIds);
 	}));
@@ -396,7 +395,7 @@ describe('reducer', function() {
 			notes.push(...await createNTestNotes(3, folders[i]));
 		}
 
-		let state = initTestState(folders, 0, notes.slice(0,3), [0]);
+		let state = initTestState(folders, 0, notes.slice(0, 3), [0]);
 		state = goToNote(notes, [1], state);
 		state = goToNote(notes, [2], state);
 
@@ -418,7 +417,7 @@ describe('reducer', function() {
 			notes.push(...await createNTestNotes(5, folders[i]));
 		}
 
-		let state = initTestState(folders, 0, notes.slice(0,5), [0]);
+		let state = initTestState(folders, 0, notes.slice(0, 5), [0]);
 		state = goToNote(notes, [1], state);
 		state = goToNote(notes, [2], state);
 		state = goToNote(notes, [3], state);
@@ -427,20 +426,20 @@ describe('reducer', function() {
 		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0, 4)));
 
 		state = goBackWard(state);
-		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0,3)));
+		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0, 3)));
 		expect(getIds(state.forwardHistoryNotes)).toEqual(getIds(notes.slice(4, 5)));
 
 		state = goBackWard(state);
-		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0,2)));
+		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0, 2)));
 		// because we push the last seen note to stack.
 		expect(getIds(state.forwardHistoryNotes)).toEqual(getIds([notes[4], notes[3]]));
 
 		state = goForward(state);
-		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0,3)));
+		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0, 3)));
 		expect(getIds(state.forwardHistoryNotes)).toEqual(getIds([notes[4]]));
 
 		state = goForward(state);
-		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0,4)));
+		expect(getIds(state.backwardHistoryNotes)).toEqual(getIds(notes.slice(0, 4)));
 		expect(getIds(state.forwardHistoryNotes)).toEqual([]);
 	}));
 
@@ -451,7 +450,7 @@ describe('reducer', function() {
 			notes.push(...await createNTestNotes(5, folders[i]));
 		}
 
-		let state = initTestState(folders, 0, notes.slice(0,5), [0]);
+		let state = initTestState(folders, 0, notes.slice(0, 5), [0]);
 
 		state = goToNote(notes, [1], state);
 		state = goToNote(notes, [2], state);
@@ -608,6 +607,28 @@ describe('reducer', function() {
 			state = reducer(state, { type: 'NOTE_UPDATE_ALL', notes: notes, notesSource: 'test' });
 			// Object identity is checked. Don't use toEqual() or toStrictEqual() here.
 			expect(state.selectedNoteIds).toBe(expected);
+		}
+	});
+
+	// tests for TAG_UPDATE_ALL about PR #6451
+	it('should not change tags when a new value is deep equal to the old value', async () => {
+		const tags = await createNTestTags(6);
+		const oldTags = tags.slice(0, 5);
+		{
+			// Case 1. The input which is deep equal to the current state.tags doesn't change state.tags.
+			const oldState = initTestState(null, null, null, null, oldTags, [2]);
+			const newTags = oldTags.slice();
+			// test action
+			const newState = reducer(oldState, { type: 'TAG_UPDATE_ALL', items: newTags });
+			expect(newState.tags).toBe(oldState.tags);
+		}
+		{
+			// Case 2. A different input changes state.tags.
+			const oldState = initTestState(null, null, null, null, oldTags, [2]);
+			const newTags = oldTags.slice().splice(3, 1, tags[5]);
+			// test action
+			const newState = reducer(oldState, { type: 'TAG_UPDATE_ALL', items: newTags });
+			expect(newState.tags).not.toBe(oldState.tags);
 		}
 	});
 });

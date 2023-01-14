@@ -3,7 +3,7 @@ const { _ } = require('@joplin/lib/locale');
 const { themeStyle } = require('@joplin/lib/theme');
 const time = require('@joplin/lib/time').default;
 const DialogButtonRow = require('./DialogButtonRow').default;
-const Datetime = require('react-datetime');
+const Datetime = require('react-datetime').default;
 const Note = require('@joplin/lib/models/Note').default;
 const formatcoords = require('formatcoords');
 const bridge = require('@electron/remote').require('./bridge').default;
@@ -41,7 +41,7 @@ class NotePropertiesDialog extends React.Component {
 	}
 
 	componentDidUpdate() {
-		if (this.state.editedKey == null) {
+		if (this.state.editedKey === null) {
 			this.okButton.current.focus();
 		}
 	}
@@ -59,7 +59,7 @@ class NotePropertiesDialog extends React.Component {
 	latLongFromLocation(location) {
 		const o = {};
 		const l = location.split(',');
-		if (l.length == 2) {
+		if (l.length === 2) {
 			o.latitude = l[0].trim();
 			o.longitude = l[1].trim();
 		} else {

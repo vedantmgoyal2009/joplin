@@ -3,21 +3,23 @@
 const fs = require('fs-extra');
 const shim = require('./shim').default;
 const GeolocationNode = require('./geolocation-node').default;
-const { FileApiDriverLocal } = require('./file-api-driver-local.js');
+const { FileApiDriverLocal } = require('./file-api-driver-local');
 const { setLocale, defaultLocale, closestSupportedLocale } = require('./locale');
 const FsDriverNode = require('./fs-driver-node').default;
 const mimeUtils = require('./mime-utils.js').mime;
 const Note = require('./models/Note').default;
 const Resource = require('./models/Resource').default;
-const urlValidator = require('valid-url');
 const { _ } = require('./locale');
 const http = require('http');
 const https = require('https');
+const { HttpProxyAgent, HttpsProxyAgent } = require('hpagent');
 const toRelative = require('relative');
 const timers = require('timers');
 const zlib = require('zlib');
 const dgram = require('dgram');
 const { basename, fileExtension, safeFileExtension } = require('./path-utils');
+
+const proxySettings = {};
 
 function fileExists(filePath) {
 	try {
@@ -25,6 +27,20 @@ function fileExists(filePath) {
 	} catch (err) {
 		return false;
 	}
+}
+
+function isUrlHttps(url) {
+	return url.startsWith('https');
+}
+
+function resolveProxyUrl(proxyUrl) {
+	return (
+		proxyUrl ||
+		process.env['http_proxy'] ||
+		process.env['https_proxy'] ||
+		process.env['HTTP_PROXY'] ||
+		process.env['HTTPS_PROXY']
+	);
 }
 
 // https://github.com/sindresorhus/callsites/blob/main/index.js
@@ -64,6 +80,13 @@ const gunzipFile = function(source, destination) {
 	});
 };
 
+function setupProxySettings(options) {
+	proxySettings.maxConcurrentConnections = options.maxConcurrentConnections;
+	proxySettings.proxyTimeout = options.proxyTimeout;
+	proxySettings.proxyEnabled = options.proxyEnabled;
+	proxySettings.proxyUrl = options.proxyUrl;
+}
+
 function shimInit(options = null) {
 	options = {
 		sharp: null,
@@ -78,6 +101,7 @@ function shimInit(options = null) {
 	const sharp = options.sharp;
 	const keytar = (shim.isWindows() || shim.isMac()) && !shim.isPortable() ? options.keytar : null;
 	const appVersion = options.appVersion;
+
 
 	shim.setNodeSqlite(options.nodeSqlite);
 
@@ -420,10 +444,14 @@ function shimInit(options = null) {
 		return new Buffer(data).toString('base64');
 	};
 
-	shim.fetch = async function(url, options = null) {
-		const validatedUrl = urlValidator.isUri(url);
-		if (!validatedUrl) throw new Error(`Not a valid URL: ${url}`);
-
+	shim.fetch = async function(url, options = {}) {
+		try { // Check if the url is valid
+			new URL(url);
+		} catch (error) { // If the url is not valid, a TypeError will be thrown
+			throw new Error(`Not a valid URL: ${url}`);
+		}
+		const resolvedProxyUrl = resolveProxyUrl(proxySettings.proxyUrl);
+		options.agent = (resolvedProxyUrl && proxySettings.proxyEnabled) ? shim.proxyAgent(url, resolvedProxyUrl) : null;
 		return shim.fetchWithRetry(() => {
 			return nodeFetch(url, options);
 		}, options);
@@ -438,7 +466,7 @@ function shimInit(options = null) {
 
 		url = urlParse(url.trim());
 		const method = options.method ? options.method : 'GET';
-		const http = url.protocol.toLowerCase() == 'http:' ? require('follow-redirects').http : require('follow-redirects').https;
+		const http = url.protocol.toLowerCase() === 'http:' ? require('follow-redirects').http : require('follow-redirects').https;
 		const headers = options.headers ? options.headers : {};
 		const filePath = options.path;
 
@@ -466,6 +494,9 @@ function shimInit(options = null) {
 			headers: headers,
 		};
 
+		const resolvedProxyUrl = resolveProxyUrl(proxySettings.proxyUrl);
+		requestOptions.agent = (resolvedProxyUrl && proxySettings.proxyEnabled) ? shim.proxyAgent(url.href, resolvedProxyUrl) : null;
+
 		const doFetchOperation = async () => {
 			return new Promise((resolve, reject) => {
 				let file = null;
@@ -473,7 +504,9 @@ function shimInit(options = null) {
 				const cleanUpOnError = error => {
 					// We ignore any unlink error as we only want to report on the main error
 					fs.unlink(filePath)
+					// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 						.catch(() => {})
+					// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 						.then(() => {
 							if (file) {
 								file.close(() => {
@@ -572,6 +605,27 @@ function shimInit(options = null) {
 		return url.startsWith('https') ? shim.httpAgent_.https : shim.httpAgent_.http;
 	};
 
+	shim.proxyAgent = (serverUrl, proxyUrl) => {
+		const proxyAgentConfig = {
+			keepAlive: true,
+			maxSockets: proxySettings.maxConcurrentConnections,
+			keepAliveMsecs: 5000,
+			proxy: proxyUrl,
+			timeout: proxySettings.proxyTimeout * 1000,
+		};
+
+		// Based on https://github.com/delvedor/hpagent#usage
+		if (!isUrlHttps(proxyUrl) && !isUrlHttps(serverUrl)) {
+			return new HttpProxyAgent(proxyAgentConfig);
+		} else if (isUrlHttps(proxyUrl) && !isUrlHttps(serverUrl)) {
+			return new HttpProxyAgent(proxyAgentConfig);
+		} else if (!isUrlHttps(proxyUrl) && isUrlHttps(serverUrl)) {
+			return new HttpsProxyAgent(proxyAgentConfig);
+		} else {
+			return new HttpsProxyAgent(proxyAgentConfig);
+		}
+	};
+
 	shim.openOrCreateFile = (filepath, defaultContents) => {
 		// If the file doesn't exist, create it
 		if (!fs.existsSync(filepath)) {
@@ -634,4 +688,4 @@ function shimInit(options = null) {
 	};
 }
 
-module.exports = { shimInit };
+module.exports = { shimInit, setupProxySettings };

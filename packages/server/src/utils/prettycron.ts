@@ -87,10 +87,10 @@ const later = require('later');
 		if (!numbers || numbers.length <= 1) return 0;
 
 		const expectedStep = numbers[1] - numbers[0];
-		if (numbers.length == 2) return expectedStep;
+		if (numbers.length === 2) return expectedStep;
 
 		// Check that every number is the previous number + the first number
-		return numbers.slice(1).every(function(n,i,a) {
+		return numbers.slice(1).every(function(n, i, a) {
 			return (i === 0 ? n : n - a[i - 1]) === expectedStep;
 		}) ? expectedStep : 0;
 	};

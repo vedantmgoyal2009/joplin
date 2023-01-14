@@ -1,5 +1,106 @@
 # Joplin Android app changelog
 
+## [android-v2.10.3](https://github.com/laurent22/joplin/releases/tag/android-v2.10.3) (Pre-release) - 2023-01-05T11:29:06Z
+
+- New: Add support for locking the app using biometrics (f10d9f7)
+- Improved: Make the new text editor the default one (f5ef318)
+- Fixed: Fixed proxy timeout setting UI (275c80a)
+- Fixed: Settings save button visible even when no settings have been changed (#7503)
+
+## [android-v2.10.2](https://github.com/laurent22/joplin/releases/tag/android-v2.10.2) (Pre-release) - 2023-01-02T17:44:15Z
+
+- New: Add support for realtime search (767213c)
+- Fixed: Enable autocorrect with spellcheck (#7532) (#6175 by Henry Heino)
+
+## [android-v2.10.1](https://github.com/laurent22/joplin/releases/tag/android-v2.10.1) (Pre-release) - 2022-12-29T13:55:48Z
+
+- Improved: Switch license to AGPL-3.0 (faf0a4e)
+- Improved: Tag search case insensitive (#7368 by [@JackGruber](https://github.com/JackGruber))
+- Improved: Update Mermaid: 9.1.7 to 9.2.2 (#7330 by Helmut K. C. Tessarek)
+- Improved: Upgrade to react-native 0.68.5 (e2d59ee)
+- Fixed: Could not attach images to notes anymore (#7471)
+- Fixed: Fix CodeMirror syntax highlighting (#7386 by Henry Heino)
+- Fixed: Fix attaching multiple files (#7196) (#7195 by Self Not Found)
+- Fixed: Update CodeMirror (#7262) (#7253 by Henry Heino)
+- Security: Fix XSS when a specially crafted string is passed to the renderer (762b4e8)
+
+## [android-v2.9.8](https://github.com/laurent22/joplin/releases/tag/android-v2.9.8) (Pre-release) - 2022-11-01T15:45:36Z
+
+- Updated translations
+
+## [android-v2.9.7](https://github.com/laurent22/joplin/releases/tag/android-v2.9.7) (Pre-release) - 2022-10-30T10:25:01Z
+
+- Fixed: Fixed notebook icons alignment (ea6b7ca)
+- Fixed: Fixed crash when attaching a file.
+
+## [android-v2.9.6](https://github.com/laurent22/joplin/releases/tag/android-v2.9.6) (Pre-release) - 2022-10-23T16:23:25Z
+
+- New: Add monochrome icon (#6954 by Tom Bursch)
+- Fixed: Fix file system sync issues (#6943 by [@jd1378](https://github.com/jd1378))
+- Fixed: Fix note attachment issue (#6932 by [@jd1378](https://github.com/jd1378))
+- Fixed: Fixed notebook icon spacing (633c9ac)
+- Fixed: Support non-ASCII characters in OneDrive (#6916) (#6838 by Self Not Found)
+
+## [android-v2.9.5](https://github.com/laurent22/joplin/releases/tag/android-v2.9.5) (Pre-release) - 2022-10-11T13:52:00Z
+
+- Improved: Disable multi-highlighting to fix context menu (9b348fd)
+- Improved: Display icon for all notebooks if at least one notebook has an icon (ec97dd8)
+
+## [android-v2.9.3](https://github.com/laurent22/joplin/releases/tag/android-v2.9.3) (Pre-release) - 2022-10-07T11:12:56Z
+
+- Improved: Convert empty bolded regions to bold-italic regions in beta editor (#6807) (#6808 by Henry Heino)
+- Improved: Increase the attachment size limit to 200MB (#6848 by Self Not Found)
+- Improved: Show client ID in log (#6897 by Self Not Found)
+- Improved: Supports attaching multiple files to a note at once (#6831 by Self Not Found)
+- Improved: Update Mermaid 8.13.9 to 9.1.7 (#6849 by Helmut K. C. Tessarek)
+- Fixed: Double/triple-tap selection doesn't show context menu  (#6803) (#6802 by Henry Heino)
+- Fixed: Fix multiple webview instances (#6841 by Henry Heino)
+- Fixed: Fix resources sync when proxy is set (#6817) (#6688 by Self Not Found)
+- Fixed: Fixed crash when trying to move note to notebook (#6898)
+
+## [android-v2.9.2](https://github.com/laurent22/joplin/releases/tag/android-v2.9.2) (Pre-release) - 2022-09-01T11:14:58Z
+
+- New: Add Markdown toolbar (#6753 by Henry Heino)
+- New: Add long-press tooltips (#6758 by Henry Heino)
+- Improved: Enable spellcheck by default on beta editor (#6778 by Henry Heino)
+- Improved: Setting to disable spellcheck in beta editor (#6780 by Henry Heino)
+- Fixed: Don't reload the application on screen rotation (#6737) (#6732 by Henry Heino)
+- Fixed: Fix default font in beta editor (#6760) (#6759 by Henry Heino)
+- Fixed: Fix side menu width on wide screen devices (#6662 by Tolulope Malomo)
+- Fixed: Fixed Android filesystem sync (resources) (#6789) (#6779 by [@jd1378](https://github.com/jd1378))
+- Fixed: Fixed handling of normal paths in filesystem sync (#6792) (#6791 by [@jd1378](https://github.com/jd1378))
+
+## [android-v2.9.1](https://github.com/laurent22/joplin/releases/tag/android-v2.9.1) (Pre-release) - 2022-08-12T17:14:49Z
+
+- New: Add alt text/roles to some buttons to improve accessibility (#6616 by Henry Heino)
+- New: Add keyboard-activatable markdown commands (e.g. bold, italicize) on text editor (#6707 by Henry Heino)
+- Improved: Ctrl+F search support in beta editor (#6587 by Henry Heino)
+- Improved: Improve syntax highlighting on mobile beta editor (#6684 by Henry Heino)
+- Improved: Removes whitespace above navigation component (#6597 by [@tmclo](https://github.com/tmclo))
+- Fixed: Do not encrypt non-owned note if it was not shared encrypted (#6645)
+- Fixed: Fix checklist continuation in beta editor (#6577) (#6576 by Henry Heino)
+- Fixed: Fixed android filesystem sync (#6395) (#5779 by [@jd1378](https://github.com/jd1378))
+- Fixed: Note links with HTML notation did not work (#6515)
+- Fixed: Scroll selection into view in beta editor when window resizes (#6610) (#5949 by Henry Heino)
+
+## [android-v2.8.1](https://github.com/laurent22/joplin/releases/tag/android-v2.8.1) (Pre-release) - 2022-05-18T13:35:01Z
+
+- Improved: Allow filtering tags in tag dialog (#6221 by [@shinglyu](https://github.com/shinglyu))
+- Improved: Automatically start sync after setting the sync parameters (ff066ba)
+- Improved: Color of Date-Time text changed to match theme (#6279 by Ayush Srivastava)
+- Improved: Handle invalid revision patches (#6209)
+- Improved: Improve error message when revision metadata cannot be decoded, to improve debugging (a325bf6)
+- Improved: Make search engine filter keywords case insensitive (#6267) (#6266 by [@JackGruber](https://github.com/JackGruber))
+- Improved: Sort sync target options (814a5a0)
+- Fixed: "Move Note" dropdown menu can be very narrow (#6306) (#3564 by Ayush Srivastava)
+- Fixed: Cursor hard to see in dark mode (#6307) (#5987 by Henry Heino)
+- Fixed: Ensure that note revision markup type is set correctly (#6261)
+- Fixed: Error when pressing undo or redo button while editor is closed (#6426) (#6328 by Tolulope Malomo)
+- Fixed: Long path in "Export profile" prevents tapping OK button (#6359) (#6026 by Tolulope Malomo)
+- Fixed: Prevent multiline note titles (#6144) (#5482 by [@Daeraxa](https://github.com/Daeraxa))
+- Fixed: Support inserting attachments from Beta Editor (#6325) (#6324 by Henry Heino)
+- Fixed: The camera button remains clickable after taking a photo bug (#6222 by [@shinglyu](https://github.com/shinglyu))
+
 ## [android-v2.7.2](https://github.com/laurent22/joplin/releases/tag/android-v2.7.2) (Pre-release) - 2022-02-12T12:51:29Z
 
 - New: Add additional time format HH.mm (#6086 by [@vincentjocodes](https://github.com/vincentjocodes))

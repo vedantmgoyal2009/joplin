@@ -11,7 +11,7 @@ import { Size } from './ResizableLayout/utils/types';
 import MenuBar from './MenuBar';
 import { _ } from '@joplin/lib/locale';
 const React = require('react');
-const { render } = require('react-dom');
+const { createRoot } = require('react-dom/client');
 const { connect, Provider } = require('react-redux');
 import Setting from '@joplin/lib/models/Setting';
 import shim from '@joplin/lib/shim';
@@ -22,6 +22,7 @@ import Dialog from './Dialog';
 import SyncWizardDialog from './SyncWizard/Dialog';
 import MasterPasswordDialog from './MasterPasswordDialog/Dialog';
 import EditFolderDialog from './EditFolderDialog/Dialog';
+import PdfViewer from './PdfViewer';
 import StyleSheetContainer from './StyleSheets/StyleSheetContainer';
 const { ImportScreen } = require('./ImportScreen.min.js');
 const { ResourceScreen } = require('./ResourceScreen.js');
@@ -75,6 +76,11 @@ const registeredDialogs: Record<string, RegisteredDialog> = {
 			return <EditFolderDialog key={props.key} dispatch={props.dispatch} themeId={props.themeId} {...customProps}/>;
 		},
 	},
+	pdfViewer: {
+		render: (props: RegisteredDialogProps, customProps: any) => {
+			return <PdfViewer key={props.key} dispatch={props.dispatch} themeId={props.themeId} {...customProps}/>;
+		},
+	},
 };
 
 const GlobalStyle = createGlobalStyle`
@@ -121,7 +127,7 @@ async function initialize() {
 
 class RootComponent extends React.Component<Props, any> {
 	public async componentDidMount() {
-		if (this.props.appState == 'starting') {
+		if (this.props.appState === 'starting') {
 			this.props.dispatch({
 				type: 'APP_STATE_SET',
 				state: 'initializing',
@@ -253,11 +259,11 @@ const Root = connect(mapStateToProps)(RootComponent);
 
 const store = app().store();
 
-render(
+const root = createRoot(document.getElementById('react-root'));
+root.render(
 	<Provider store={store}>
 		<ErrorBoundary>
 			<Root />
 		</ErrorBoundary>
-	</Provider>,
-	document.getElementById('react-root')
+	</Provider>
 );

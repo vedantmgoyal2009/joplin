@@ -35,10 +35,9 @@ function mockService(api: any) {
 
 describe('ShareService', function() {
 
-	beforeEach(async (done) => {
+	beforeEach(async () => {
 		await setupDatabaseAndSynchronizer(1);
 		await switchClient(1);
-		done();
 	});
 
 	it('should not change the note user timestamps when sharing or unsharing', async () => {
@@ -140,6 +139,7 @@ describe('ShareService', function() {
 		expect(await MasterKey.count()).toBe(1);
 
 		let { folder, note, resource } = await testShareFolder(shareService);
+		await Folder.updateAllShareIds(resourceService());
 
 		// The share service should automatically create a new encryption key
 		// specifically for that shared folder

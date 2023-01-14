@@ -4,7 +4,7 @@ import { _ } from '@joplin/lib/locale';
 import bridge from './services/bridge';
 import KvStore from '@joplin/lib/services/KvStore';
 const { fileExtension } = require('@joplin/lib/path-utils');
-const ArrayUtils = require('@joplin/lib/ArrayUtils');
+import * as ArrayUtils from '@joplin/lib/ArrayUtils';
 const packageInfo = require('./packageInfo.js');
 const compareVersions = require('compare-versions');
 
@@ -40,7 +40,7 @@ async function fetchLatestRelease(options: CheckForUpdateOptions) {
 
 	if (!response.ok) {
 		const responseText = await response.text();
-		throw new Error(`Cannot get latest release info: ${responseText.substr(0,500)}`);
+		throw new Error(`Cannot get latest release info: ${responseText.substr(0, 500)}`);
 	}
 
 	const releases = await response.json();
@@ -86,7 +86,7 @@ async function fetchLatestRelease(options: CheckForUpdateOptions) {
 		const ext = fileExtension(asset.name);
 		if (platform === 'win32' && ext === 'exe') {
 			if (shim.isPortable()) {
-				found = asset.name == 'JoplinPortable.exe';
+				found = asset.name === 'JoplinPortable.exe';
 			} else {
 				found = !!asset.name.match(/^Joplin-Setup-[\d.]+\.exe$/);
 			}

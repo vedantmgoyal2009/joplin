@@ -14,7 +14,7 @@ const { substrWithEllipsis } = require('../string-utils.js');
 
 const logger = Logger.create('models/Folder');
 
-interface FolderEntityWithChildren extends FolderEntity {
+export interface FolderEntityWithChildren extends FolderEntity {
 	children?: FolderEntity[];
 }
 
@@ -55,6 +55,7 @@ export default class Folder extends BaseItem {
 
 		return this.db()
 			.selectAll(`SELECT id FROM notes WHERE ${where.join(' AND ')}`, [parentId])
+		// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 			.then((rows: any[]) => {
 				const output = [];
 				for (let i = 0; i < rows.length; i++) {
@@ -544,6 +545,12 @@ export default class Folder extends BaseItem {
 	static async allAsTree(folders: FolderEntity[] = null, options: any = null) {
 		const all = folders ? folders : await this.all(options);
 
+		if (options && options.includeNotes) {
+			for (const folder of all) {
+				folder.notes = await Note.previews(folder.id);
+			}
+		}
+
 		// https://stackoverflow.com/a/49387427/561309
 		function getNestedChildren(models: FolderEntityWithChildren[], parentId: string) {
 			const nestedTreeStructure = [];
@@ -552,7 +559,7 @@ export default class Folder extends BaseItem {
 			for (let i = 0; i < length; i++) {
 				const model = models[i];
 
-				if (model.parent_id == parentId) {
+				if (model.parent_id === parentId) {
 					const children = getNestedChildren(models, model.id);
 
 					if (children.length > 0) {
@@ -609,7 +616,7 @@ export default class Folder extends BaseItem {
 		return output.join(' / ');
 	}
 
-	static buildTree(folders: FolderEntity[]) {
+	static buildTree(folders: FolderEntity[]): FolderEntityWithChildren[] {
 		const idToFolders: Record<string, any> = {};
 		for (let i = 0; i < folders.length; i++) {
 			idToFolders[folders[i].id] = Object.assign({}, folders[i]);
@@ -666,7 +673,7 @@ export default class Folder extends BaseItem {
 	}
 
 	static load(id: string, _options: any = null): Promise<FolderEntity> {
-		if (id == this.conflictFolderId()) return Promise.resolve(this.conflictFolder());
+		if (id === this.conflictFolderId()) return Promise.resolve(this.conflictFolder());
 		return super.load(id);
 	}
 
@@ -681,7 +688,7 @@ export default class Folder extends BaseItem {
 		if (isRootSharedFolder(folder)) return false;
 
 		const conflictFolderId = Folder.conflictFolderId();
-		if (folderId == conflictFolderId || targetFolderId == conflictFolderId) return false;
+		if (folderId === conflictFolderId || targetFolderId === conflictFolderId) return false;
 
 		if (!targetFolderId) return true;
 
@@ -728,7 +735,7 @@ export default class Folder extends BaseItem {
 		}
 
 		if (options.stripLeftSlashes === true && o.title) {
-			while (o.title.length && (o.title[0] == '/' || o.title[0] == '\\')) {
+			while (o.title.length && (o.title[0] === '/' || o.title[0] === '\\')) {
 				o.title = o.title.substr(1);
 			}
 		}
@@ -748,11 +755,12 @@ export default class Folder extends BaseItem {
 		// }
 
 		if (options.reservedTitleCheck === true && o.title) {
-			if (o.title == Folder.conflictFolderTitle()) throw new Error(_('Notebooks cannot be named "%s", which is a reserved title.', o.title));
+			if (o.title === Folder.conflictFolderTitle()) throw new Error(_('Notebooks cannot be named "%s", which is a reserved title.', o.title));
 		}
 
 		syncDebugLog.info('Folder Save:', o);
 
+		// eslint-disable-next-line promise/prefer-await-to-then -- Old code before rule was applied
 		return super.save(o, options).then((folder: FolderEntity) => {
 			this.dispatch({
 				type: 'FOLDER_UPDATE_ONE',
@@ -772,6 +780,14 @@ export default class Folder extends BaseItem {
 			...defaultFolderIcon(),
 			...JSON.parse(icon),
 		};
+	}
+
+	public static shouldShowFolderIcons(folders: FolderEntity[]) {
+		// If at least one of the folder has an icon, then we display icons for all
+		// folders (those without one will get the default icon). This is so that
+		// visual alignment is correct for all folders, otherwise the folder tree
+		// looks messy.
+		return !!folders.find(f => !!f.icon);
 	}
 
 }

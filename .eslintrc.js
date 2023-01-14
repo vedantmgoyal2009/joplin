@@ -76,16 +76,21 @@ module.exports = {
 
 		'no-array-constructor': ['error'],
 		'radix': ['error'],
+		'eqeqeq': ['error', 'always'],
 
 		// Warn only for now because fixing everything would take too much
 		// refactoring, but new code should try to stick to it.
 		// 'complexity': ['warn', { max: 10 }],
 
 		// Checks rules of Hooks
-		'react-hooks/rules-of-hooks': 'error',
+		'@seiyab/react-hooks/rules-of-hooks': 'error',
+		'@seiyab/react-hooks/exhaustive-deps': ['error', { 'ignoreThisDependency': 'props' }],
+
 		// Checks effect dependencies
 		// Disable because of this: https://github.com/facebook/react/issues/16265
 		// "react-hooks/exhaustive-deps": "warn",
+
+		'promise/prefer-await-to-then': 'error',
 
 		// -------------------------------
 		// Formatting
@@ -104,6 +109,7 @@ module.exports = {
 			'exports': 'always-multiline',
 			'functions': 'never',
 		}],
+		'comma-spacing': ['error', { 'before': false, 'after': true }],
 		'no-trailing-spaces': 'error',
 		'linebreak-style': ['error', 'unix'],
 		'prefer-template': ['error'],
@@ -133,8 +139,12 @@ module.exports = {
 	'plugins': [
 		'react',
 		'@typescript-eslint',
-		'react-hooks',
+		// Need to use a fork of the official rules of hooks because of this bug:
+		// https://github.com/facebook/react/issues/16265
+		'@seiyab/eslint-plugin-react-hooks',
+		// 'react-hooks',
 		'import',
+		'promise',
 	],
 	'overrides': [
 		{
